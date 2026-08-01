@@ -1,9 +1,8 @@
 import React, { useState } from 'react';
 import { 
-  LayoutDashboard, 
+  LayoutGrid, 
   Users, 
-  Package, 
-  LogOut, 
+  Box, 
   Menu, 
   Calendar, 
   ChevronDown,
@@ -11,7 +10,9 @@ import {
   ClipboardList,
   Weight,
   Banknote,
-  CreditCard
+  CreditCard,
+  Package,
+  User
 } from 'lucide-react';
 import { 
   LineChart, 
@@ -28,6 +29,10 @@ import {
 import LaborManagement from './LaborManagement';
 import AddLaborEntry from './AddLaborEntry';
 import ViewLaborEntry from './ViewLaborEntry';
+import StockList from './StockList';
+import AddStockEntry from './AddStockEntry';
+import EditStockEntry from './EditStockEntry';
+import ViewStockEntry from './ViewStockEntry';
 import './Dashboard.css';
 
 // Dummy Data for Line Chart
@@ -60,7 +65,7 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
-const Dashboard = () => {
+const Dashboard = ({ onLogout }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
@@ -93,35 +98,34 @@ const Dashboard = () => {
           <div style={{display: 'flex', alignItems: 'center', gap: '12px', fontWeight: 'bold', overflow: 'hidden'}}>
             <img src="/logo icon.png" alt="Logo" className="logo-icon" style={{ width: '36px', height: '36px', objectFit: 'contain' }} />
             <span className="logo-text" style={{ lineHeight: '1.2', marginLeft: '4px' }}>
-              <span style={{ color: '#0F172A', fontSize: '1.2rem', letterSpacing: '0.5px' }}>PRAMUKH</span><br/>
-              <span style={{ color: '#3D9542', fontSize: '0.9rem', letterSpacing: '1px' }}>SCRAP</span>
+              <span style={{ color: '#0F172A', fontSize: '1.2rem', letterSpacing: '0.5px', fontWeight: '800' }}>PRAMUKH</span><br/>
+              <span style={{ color: '#16A34A', fontSize: '0.9rem', letterSpacing: '1px', fontWeight: '700' }}>SCRAP</span>
             </span>
           </div>
         </div>
         
         <nav className="sidebar-nav">
           <a href="#" className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); setMobileSidebarOpen(false); }}>
-            <LayoutDashboard className="nav-icon" /> <span className="nav-text">Dashboard</span>
+            <LayoutGrid className="nav-icon" /> <span className="nav-text">Dashboard</span>
           </a>
           <a href="#" className={`nav-item ${activeTab === 'labor' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('labor'); setMobileSidebarOpen(false); }}>
             <Users className="nav-icon" /> <span className="nav-text">Labor Management</span>
           </a>
-          <a href="#" className="nav-item">
-            <Package className="nav-icon" /> <span className="nav-text">Stock Management</span>
+          <a href="#" className={`nav-item ${activeTab === 'stock' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('stock'); setMobileSidebarOpen(false); }}>
+            <Box className="nav-icon" /> <span className="nav-text">Stock Management</span>
           </a>
         </nav>
         
         <div className="sidebar-footer">
           <div className="nav-user-profile">
-            <div className="avatar">A</div>
+            <div className="avatar">
+              <User size={18} />
+            </div>
             <div className="user-info nav-text">
               <span className="user-name">Admin</span>
               <span className="user-role">Super Admin</span>
             </div>
           </div>
-          <button className="logout-btn">
-            <LogOut className="nav-icon" /> <span className="nav-text">Logout</span>
-          </button>
         </div>
       </aside>
 
@@ -139,7 +143,11 @@ const Dashboard = () => {
                activeTab === 'add-labor' ? 'Add Labor Entry' :
                activeTab === 'edit-labor' ? 'Edit Labor Entry' :
                activeTab === 'view-labor' ? 'View Labor Entry' :
-               'Stock Management'}
+               activeTab === 'stock' ? 'Stock Management' :
+               activeTab === 'add-stock' ? 'Add New Stock Entry' :
+               activeTab === 'edit-stock' ? 'Edit Stock Adjustment' :
+               activeTab === 'view-stock' ? 'Material Profile' :
+               'Dashboard'}
             </h1>
           </div>
           
@@ -367,6 +375,14 @@ const Dashboard = () => {
           <AddLaborEntry onCancel={() => setActiveTab('labor')} isEditMode={activeTab === 'edit-labor'} />
         ) : activeTab === 'view-labor' ? (
           <ViewLaborEntry onBack={() => setActiveTab('labor')} />
+        ) : activeTab === 'stock' ? (
+          <StockList onAddEntry={() => setActiveTab('add-stock')} onEditEntry={() => setActiveTab('edit-stock')} onViewEntry={() => setActiveTab('view-stock')} />
+        ) : activeTab === 'add-stock' ? (
+          <AddStockEntry onCancel={() => setActiveTab('stock')} />
+        ) : activeTab === 'edit-stock' ? (
+          <EditStockEntry onCancel={() => setActiveTab('stock')} />
+        ) : activeTab === 'view-stock' ? (
+          <ViewStockEntry onBack={() => setActiveTab('stock')} />
         ) : null}
       </main>
     </div>

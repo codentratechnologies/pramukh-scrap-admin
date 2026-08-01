@@ -66,18 +66,40 @@ const ViewLaborEntry = ({ onBack }) => {
 
   return (
     <div className="view-labor-container">
-      {/* Breadcrumbs */}
-      <div className="breadcrumbs">
-        <div className="breadcrumb-item active" onClick={onBack}>
-          <Home size={14} /> Labor Management
-        </div>
-        <ChevronRight size={14} className="breadcrumb-separator" />
-        <div className="breadcrumb-item active" onClick={onBack}>
-          Labor Entries
-        </div>
-        <ChevronRight size={14} className="breadcrumb-separator" />
-        <div className="breadcrumb-item current">
-          View Labor Entry
+      {/* Page Header */}
+      <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
+        <button 
+          className="btn-back" 
+          onClick={onBack}
+          style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: '0.5rem', 
+            padding: '0.5rem 1rem', 
+            backgroundColor: 'var(--white)', 
+            border: '1px solid var(--border-light)', 
+            borderRadius: '6px', 
+            color: 'var(--blue-dark)', 
+            fontWeight: '500', 
+            cursor: 'pointer',
+            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
+          }}
+        >
+          <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} /> Back to List
+        </button>
+
+        <div className="breadcrumbs" style={{ marginBottom: 0 }}>
+          <div className="breadcrumb-item active" onClick={onBack}>
+            <Home size={14} /> Labor Management
+          </div>
+          <ChevronRight size={14} className="breadcrumb-separator" />
+          <div className="breadcrumb-item active" onClick={onBack}>
+            Labor Entries
+          </div>
+          <ChevronRight size={14} className="breadcrumb-separator" />
+          <div className="breadcrumb-item current">
+            View Labor Entry
+          </div>
         </div>
       </div>
 
@@ -127,77 +149,65 @@ const ViewLaborEntry = ({ onBack }) => {
       {/* Details Table */}
       <div className="details-section">
         <div className="section-header">Employee & Work Details</div>
-        <div className="details-table-wrapper">
-          <table className="details-table">
-            <thead>
-              <tr>
-                <th style={{ width: '60px' }}>#</th>
-                <th style={{ width: '40%' }}>Employee Name</th>
-                <th style={{ width: '20%', textAlign: 'center' }}>Total Weight (Kg)</th>
-                <th style={{ width: '20%', textAlign: 'center' }}>Total Amount (₹)</th>
-                <th style={{ width: '80px', textAlign: 'center' }}>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entryData.employees.map((emp, index) => (
-                <React.Fragment key={emp.id}>
-                  <tr>
-                    <td>{index + 1}</td>
-                    <td className="fw-600">{emp.name}</td>
-                    <td style={{ textAlign: 'center' }} className="fw-600">{emp.totalWeight}</td>
-                    <td style={{ textAlign: 'center' }} className="text-green">₹ {emp.totalAmount}</td>
-                    <td style={{ textAlign: 'center' }}>
-                      <button 
-                        className={`expand-icon-btn ${expandedRow === emp.id ? 'expanded' : ''}`}
-                        onClick={() => toggleRow(emp.id)}
-                      >
-                        <ChevronDown size={20} />
-                      </button>
-                    </td>
-                  </tr>
-                  
-                  {expandedRow === emp.id && emp.workTypes.length > 0 && (
-                    <tr className="nested-table-row">
-                      <td colSpan="5">
-                        <div className="nested-table-container">
-                          <table className="nested-table">
-                            <thead>
-                              <tr>
-                                <th style={{ width: '60px' }}></th>
-                                <th style={{ width: '40%' }}>Work Type</th>
-                                <th style={{ width: '20%', textAlign: 'center' }}>Weight (Kg)</th>
-                                <th style={{ width: '20%', textAlign: 'center' }}>Rate (₹ / Kg)</th>
-                                <th style={{ width: '80px', textAlign: 'center' }}>Amount (₹)</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                              {emp.workTypes.map((work, idx) => (
-                                <tr key={idx}>
-                                  <td></td>
-                                  <td>{work.type}</td>
-                                  <td style={{ textAlign: 'center' }}>{work.weight}</td>
-                                  <td style={{ textAlign: 'center' }}>{work.rate}</td>
-                                  <td style={{ textAlign: 'center' }} className="text-green">₹ {work.amount}</td>
-                                </tr>
-                              ))}
-                            </tbody>
-                          </table>
-                        </div>
-                      </td>
-                    </tr>
-                  )}
-                </React.Fragment>
-              ))}
+        <div className="employee-details-list">
+          {entryData.employees.map((emp, index) => (
+            <div className="employee-detail-card" key={emp.id}>
+              <div className="employee-card-header">
+                <div className="emp-info">
+                  <span className="emp-index">#{index + 1}</span>
+                  <span className="emp-name fw-600">{emp.name}</span>
+                </div>
+                <div className="emp-totals">
+                  <div className="emp-total-item">
+                    <span className="label">Total Weight:</span>
+                    <span className="value">{emp.totalWeight} Kg</span>
+                  </div>
+                  <div className="emp-total-item">
+                    <span className="label">Total Amount:</span>
+                    <span className="value text-green fw-600">₹ {emp.totalAmount}</span>
+                  </div>
+                  <button 
+                    className={`expand-icon-btn ${expandedRow === emp.id ? 'expanded' : ''}`}
+                    onClick={() => toggleRow(emp.id)}
+                    style={{ marginLeft: '1rem' }}
+                  >
+                    <ChevronDown size={20} />
+                  </button>
+                </div>
+              </div>
               
-              <tr className="table-totals-row">
-                <td colSpan="2" style={{ textAlign: 'right', paddingRight: '2rem' }}>Total Weight</td>
-                <td style={{ textAlign: 'center' }}>3,000 Kg</td>
-                <td style={{ textAlign: 'right', paddingRight: '1rem' }}>Total Amount</td>
-                <td style={{ textAlign: 'center' }} className="text-green">₹ {entryData.totalAmount}</td>
-              </tr>
-            </tbody>
-          </table>
+              {expandedRow === emp.id && (
+                <div className="employee-card-body">
+                  {emp.workTypes && emp.workTypes.length > 0 ? (
+                    <table className="nested-table">
+                      <thead>
+                        <tr>
+                          <th style={{ width: '40%' }}>Work Type</th>
+                          <th style={{ width: '20%', textAlign: 'center' }}>Weight (Kg)</th>
+                          <th style={{ width: '20%', textAlign: 'center' }}>Rate (₹ / Kg)</th>
+                          <th style={{ width: '20%', textAlign: 'right', paddingRight: '1rem' }}>Amount (₹)</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        {emp.workTypes.map((work, idx) => (
+                          <tr key={idx}>
+                            <td>{work.type}</td>
+                            <td style={{ textAlign: 'center' }}>{work.weight}</td>
+                            <td style={{ textAlign: 'center' }}>{work.rate}</td>
+                            <td style={{ textAlign: 'right', paddingRight: '1rem' }} className="text-green">₹ {work.amount}</td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  ) : (
+                    <div className="no-work-data">No work details recorded for this employee.</div>
+                  )}
+                </div>
+              )}
+            </div>
+          ))}
         </div>
+
       </div>
 
       {/* Summary Section */}

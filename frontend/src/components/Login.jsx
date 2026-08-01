@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const Login = () => {
+const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -35,7 +35,11 @@ const Login = () => {
 
     if (email === 'pramukhscrap36@gmail.com' && password === 'Pramukh@36') {
       setError('');
-      alert('Login successful');
+      if (onLoginSuccess) {
+        onLoginSuccess();
+      } else {
+        alert('Login successful');
+      }
     } else {
       setError('Invalid email or password. Please try again.');
     }
