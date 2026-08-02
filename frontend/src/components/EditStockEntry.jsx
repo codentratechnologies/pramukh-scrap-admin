@@ -4,9 +4,9 @@ import {
   Lock, 
   Calendar, 
   Clock, 
-  Box, 
-  ArrowRight, 
-  ArrowLeft, 
+  Box,
+  ArrowRight,
+  ArrowLeft,
   Info, 
   X, 
   Save,
@@ -14,26 +14,35 @@ import {
   CircleDot,
   Circle
 } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 import './EditStockEntry.css';
 
-const EditStockEntry = ({ onCancel }) => {
+const EditStockEntry = ({ stock, onCancel }) => {
   const [formData, setFormData] = useState({
     actionType: '', // 'add' or 'remove'
     quantity: '',
-    unit: 'kg',
+    unit: stock?.unit || 'kg',
     remarks: ''
   });
   
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  
   const [errors, setErrors] = useState({});
 
-  // Dummy data for read-only material profile
-  const materialData = {
-    name: 'Copper Wire',
-    description: 'High quality copper wire scrap used in recycling and melting.',
-    currentStock: 450.5,
-    unit: 'kg',
-    createdDate: '10-Oct-23',
-    lastUpdated: '25-Oct-23 10:00 AM'
+  const materialData = stock ? {
+    name: stock.materialName || 'N/A',
+    description: stock.description || 'No description provided.',
+    currentStock: stock.quantity || 0,
+    unit: stock.unit || 'kg',
+    createdDate: stock.stockDate || 'N/A',
+    lastUpdated: stock.createdAt ? new Date(stock.createdAt).toLocaleString() : 'N/A'
+  } : {
+    name: 'Loading...',
+    description: '',
+    currentStock: 0,
+    unit: '',
+    createdDate: '',
+    lastUpdated: ''
   };
 
   const handleChange = (e) => {
@@ -64,22 +73,48 @@ const EditStockEntry = ({ onCancel }) => {
     }
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
     if (!formData.actionType) newErrors.actionType = 'Please select an action type';
     if (!formData.quantity) newErrors.quantity = 'Adjustment quantity is required';
     else if (Number(formData.quantity) <= 0) newErrors.quantity = 'Quantity must be greater than 0';
+    
+    // Prevent removing more than available
+    if (formData.actionType === 'remove' && Number(formData.quantity) > Number(materialData.currentStock)) {
+      newErrors.quantity = 'Cannot remove more than current stock';
+    }
 
     if (Object.keys(newErrors).length > 0) {
       setErrors(newErrors);
       return;
     }
+    
+    if (!stock?.id) {
+      alert("Error: Stock ID is missing. Please go back and try again.");
+      return;
+    }
 
-    // Save logic would go here
-    console.log('Saving stock adjustment:', formData);
-    onCancel(); // Redirect back to list
+    setIsSubmitting(true);
+    try {
+      const response = await apiFetch(`/stocks/${stock.id}/adjust`, {
+        method: 'POST',
+        body: JSON.stringify(formData)
+      });
+      
+      const result = await response.json();
+      if (!response.ok) {
+        throw new Error(result.detail || 'Failed to save adjustment');
+      }
+      
+      onCancel(); // Redirect back to list
+    } catch (err) {
+      console.error(err);
+      alert('Error adjusting stock: ' + err.message);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -288,8 +323,8 @@ const EditStockEntry = ({ onCancel }) => {
           <button type="button" className="btn-cancel" onClick={onCancel}>
             <X size={18} /> Cancel
           </button>
-          <button type="button" className="btn-save" onClick={handleSave}>
-            <Save size={18} /> Save Adjustment
+          <button type="button" className="btn-save" onClick={handleSave} disabled={isSubmitting}>
+            <Save size={18} /> {isSubmitting ? 'Saving...' : 'Save Adjustment'}
           </button>
         </div>
 

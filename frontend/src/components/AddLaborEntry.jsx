@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, 
   ChevronRight, 
@@ -11,9 +11,11 @@ import {
 } from 'lucide-react';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { apiFetch } from '../utils/api';
 import './AddLaborEntry.css';
 
-const AddLaborEntry = ({ onCancel, isEditMode }) => {
+const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const [expandedRow, setExpandedRow] = useState(null);
   const [entryDate, setEntryDate] = useState(new Date());
   const [supervisorName, setSupervisorName] = useState('');
@@ -23,6 +25,47 @@ const AddLaborEntry = ({ onCancel, isEditMode }) => {
   
   const [employees, setEmployees] = useState([]);
   const [errors, setErrors] = useState({});
+  const [isLoading, setIsLoading] = useState(false);
+
+  useEffect(() => {
+    if (isEditMode && laborId) {
+      loadLaborEntry();
+    }
+  }, [isEditMode, laborId]);
+
+  const loadLaborEntry = async () => {
+    setIsLoading(true);
+    try {
+      const res = await apiFetch(`/labor/${laborId}`);
+      const json = await res.json();
+      if (json.success) {
+        const data = json.data;
+        setEntryDate(new Date(data.entryDate));
+        setSupervisorName(data.supervisorName || '');
+        setDeductions(data.deductions?.toString() || '');
+        setDeductionReason(data.deductionReason || '');
+        setRemarks(data.remarks || '');
+        
+        if (data.employees) {
+          setEmployees(data.employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            workTypes: (emp.workTypes || []).map(wt => ({
+              id: wt.id,
+              type: wt.type,
+              weight: wt.weight?.toString() || '',
+              rate: wt.rate?.toString() || ''
+            }))
+          })));
+        }
+      }
+    } catch (err) {
+      console.error("Failed to load labor entry:", err);
+      alert("Failed to load labor entry for editing.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const toggleRow = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
@@ -125,7 +168,7 @@ const AddLaborEntry = ({ onCancel, isEditMode }) => {
   const grandTotalAmount = employees.reduce((sum, emp) => sum + getEmpTotalAmount(emp), 0);
   const payableAmount = grandTotalAmount - (parseFloat(deductions) || 0);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     let newErrors = {};
     if (!entryDate) newErrors.entryDate = "Date is required";
     if (!supervisorName.trim()) newErrors.supervisorName = "Supervisor Name is required";
@@ -151,7 +194,50 @@ const AddLaborEntry = ({ onCancel, isEditMode }) => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length === 0) {
-      alert("Form is valid and ready to be saved!");
+      setIsSubmitting(true);
+      try {
+        const payload = {
+          entryDate: entryDate.toISOString(),
+          supervisorName: supervisorName,
+          deductions: parseFloat(deductions) || 0,
+          deductionReason: deductionReason,
+          remarks: remarks,
+          employees: employees.map(emp => ({
+            id: emp.id,
+            name: emp.name,
+            workTypes: emp.workTypes.map(wt => ({
+              id: wt.id,
+              type: wt.type,
+              weight: parseFloat(wt.weight) || 0,
+              rate: parseFloat(wt.rate) || 0
+            }))
+          })),
+          grandTotalWeight,
+          grandTotalAmount,
+          payableAmount
+        };
+
+        const endpoint = isEditMode && laborId ? `/labor/${laborId}` : '/labor';
+        const method = isEditMode && laborId ? 'PUT' : 'POST';
+        
+        const res = await apiFetch(endpoint, {
+          method: method,
+          body: JSON.stringify(payload)
+        });
+
+        const data = await res.json();
+        
+        if (res.ok) {
+          onCancel(); // Back to list
+        } else {
+          alert('Failed to save labor entry: ' + (data.detail || 'Unknown error'));
+        }
+      } catch (err) {
+        console.error("Save error:", err);
+        alert('Connection error while saving.');
+      } finally {
+        setIsSubmitting(false);
+      }
     } else {
       const firstErrEmp = employees.find(emp => 
         newErrors[`emp_${emp.id}_name`] || 
@@ -165,6 +251,10 @@ const AddLaborEntry = ({ onCancel, isEditMode }) => {
   // --- Formatting Helpers ---
   const formatMoney = (val) => val.toLocaleString('en-IN', { maximumFractionDigits: 2 });
   const formatWeight = (val) => val.toLocaleString('en-IN', { maximumFractionDigits: 2 });
+
+  if (isLoading) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading labor entry...</div>;
+  }
 
   return (
     <div className="add-labor-container">
@@ -442,8 +532,8 @@ const AddLaborEntry = ({ onCancel, isEditMode }) => {
       <div className="form-footer-actions">
         <button className="btn-secondary" onClick={onCancel}>Cancel</button>
         <button className="btn-secondary" onClick={handleReset}>Reset</button>
-        <button className="btn-primary" onClick={handleSave}>
-          <Save size={18} /> {isEditMode ? 'Update Labor Entry' : 'Save Labor Entry'}
+        <button className="btn-primary" onClick={handleSave} disabled={isSubmitting}>
+          <Save size={18} /> {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Labor Entry' : 'Save Labor Entry')}
         </button>
       </div>
     </div>

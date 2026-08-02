@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   LayoutGrid, 
   Users, 
@@ -33,24 +33,17 @@ import StockList from './StockList';
 import AddStockEntry from './AddStockEntry';
 import EditStockEntry from './EditStockEntry';
 import ViewStockEntry from './ViewStockEntry';
+import { apiFetch } from '../utils/api';
 import './Dashboard.css';
 
-// Dummy Data for Line Chart
-const laborCostData = [
-  { name: '15 May', cost: 85420 },
-  { name: '16 May', cost: 92310 },
-  { name: '17 May', cost: 78650 },
-  { name: '18 May', cost: 96870 },
-  { name: '19 May', cost: 112450 },
-  { name: '20 May', cost: 108230 },
-  { name: '21 May', cost: 124560 },
+// Dummy Data for Line Chart (Fallback)
+const fallbackLaborCostData = [
+  { name: 'No Data', cost: 0 }
 ];
 
-// Dummy Data for Donut Chart
-const workTypeData = [
-  { name: 'Grinding', value: 1205, color: '#22C55E' }, // Green
-  { name: 'Kabadu', value: 820, color: '#3B82F6' }, // Blue
-  { name: 'Patakadku', value: 425, color: '#F59E0B' }, // Orange
+// Dummy Data for Donut Chart (Fallback)
+const fallbackWorkTypeData = [
+  { name: 'No Data', value: 1, color: '#E5E7EB' }
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -69,6 +62,48 @@ const Dashboard = ({ onLogout }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedStock, setSelectedStock] = useState(null);
+  const [selectedLabor, setSelectedLabor] = useState(null);
+  
+  const [dashboardData, setDashboardData] = useState(null);
+  const [loadingDashboard, setLoadingDashboard] = useState(true);
+  
+  const [dateFilter, setDateFilter] = useState('today');
+  const [customStart, setCustomStart] = useState('');
+  const [customEnd, setCustomEnd] = useState('');
+
+  useEffect(() => {
+    if (activeTab === 'dashboard') {
+      fetchDashboardData();
+    }
+  }, [activeTab, dateFilter, customStart, customEnd]);
+
+  const fetchDashboardData = async () => {
+    // If custom is selected but dates aren't filled, don't fetch yet or fetch all
+    if (dateFilter === 'custom' && (!customStart || !customEnd)) {
+      return; 
+    }
+    
+    setLoadingDashboard(true);
+    try {
+      let query = '';
+      if (dateFilter && dateFilter !== 'all') {
+        query += `?filter_type=${dateFilter}`;
+        if (dateFilter === 'custom' && customStart && customEnd) {
+          query += `&start_date=${customStart}&end_date=${customEnd}`;
+        }
+      }
+      const res = await apiFetch(`/dashboard/stats${query}`);
+      const json = await res.json();
+      if (json.success) {
+        setDashboardData(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch dashboard stats", err);
+    } finally {
+      setLoadingDashboard(false);
+    }
+  };
 
   const toggleMobileSidebar = () => {
     setMobileSidebarOpen(!mobileSidebarOpen);
@@ -158,6 +193,48 @@ const Dashboard = ({ onLogout }) => {
 
         {activeTab === 'dashboard' ? (
           <div className="dashboard-body">
+            <div className="dashboard-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: '#FFFFFF', padding: '15px 20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
+              <div style={{ fontWeight: '600', color: '#0F172A', fontSize: '1.1rem' }}>
+                Overview Performance
+              </div>
+              <div className="dashboard-filters" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
+                <select 
+                  className="dropdown-select" 
+                  value={dateFilter} 
+                  onChange={(e) => setDateFilter(e.target.value)}
+                  style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
+                >
+                  <option value="all">All Time</option>
+                  <option value="today">Today</option>
+                  <option value="week">This Week</option>
+                  <option value="month">This Month</option>
+                  <option value="custom">Custom Date</option>
+                </select>
+                
+                {dateFilter === 'custom' && (
+                  <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
+                    <input 
+                      type="date" 
+                      value={customStart}
+                      onChange={(e) => setCustomStart(e.target.value)}
+                      style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
+                    />
+                    <span style={{color: '#64748B'}}>to</span>
+                    <input 
+                      type="date" 
+                      value={customEnd}
+                      onChange={(e) => setCustomEnd(e.target.value)}
+                      style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
+                    />
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {loadingDashboard ? (
+              <div style={{ padding: '2rem', textAlign: 'center' }}>Loading dashboard data...</div>
+            ) : (
+              <>
             {/* Top 4 Stat Cards */}
           <div className="stats-grid">
             <div className="stat-card">
@@ -166,10 +243,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Labor Entries</div>
-                <div className="stat-value">24</div>
-                <div className="stat-change">
-                  <TrendingUp size={14} /> 20% vs yesterday
-                </div>
+                <div className="stat-value">{dashboardData?.summary?.totalLaborEntries || 0}</div>
               </div>
             </div>
             
@@ -179,10 +253,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Employees</div>
-                <div className="stat-value">156</div>
-                <div className="stat-change">
-                  <TrendingUp size={14} /> 12% vs yesterday
-                </div>
+                <div className="stat-value">{dashboardData?.summary?.totalEmployees || 0}</div>
               </div>
             </div>
             
@@ -192,10 +263,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Labor Cost</div>
-                <div className="stat-value">₹ 1,24,560</div>
-                <div className="stat-change">
-                  <TrendingUp size={14} /> 18% vs yesterday
-                </div>
+                <div className="stat-value">₹ {(dashboardData?.summary?.totalLaborCost || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
               </div>
             </div>
             
@@ -205,60 +273,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Payable Amount</div>
-                <div className="stat-value">₹ 1,10,340</div>
-                <div className="stat-change">
-                  <TrendingUp size={14} /> 15% vs yesterday
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Today Overview */}
-          <h2 className="section-title">Today Overview</h2>
-          <div className="overview-card">
-            <div className="overview-grid">
-              <div className="overview-item">
-                <div className="stat-icon green">
-                  <ClipboardList size={20} />
-                </div>
-                <div>
-                  <div className="stat-title">Labor Entries</div>
-                  <div className="stat-value">5</div>
-                  <div className="stat-sub">Today</div>
-                </div>
-              </div>
-              
-              <div className="overview-item">
-                <div className="stat-icon blue">
-                  <Package size={20} />
-                </div>
-                <div>
-                  <div className="stat-title">Total Weight</div>
-                  <div className="stat-value">2,450 Kg</div>
-                  <div className="stat-sub">Today</div>
-                </div>
-              </div>
-              
-              <div className="overview-item">
-                <div className="stat-icon purple">
-                  <CreditCard size={20} />
-                </div>
-                <div>
-                  <div className="stat-title">Total Deductions</div>
-                  <div className="stat-value">₹ 4,230</div>
-                  <div className="stat-sub">Today</div>
-                </div>
-              </div>
-              
-              <div className="overview-item">
-                <div className="stat-icon green">
-                  <Banknote size={20} />
-                </div>
-                <div>
-                  <div className="stat-title">Payable Amount</div>
-                  <div className="stat-value">₹ 45,670</div>
-                  <div className="stat-sub">Today</div>
-                </div>
+                <div className="stat-value">₹ {(dashboardData?.summary?.totalPayableAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
               </div>
             </div>
           </div>
@@ -268,16 +283,30 @@ const Dashboard = ({ onLogout }) => {
             {/* Line Chart */}
             <div className="chart-card">
               <div className="chart-header">
-                <h3 className="chart-title">Labor Cost Overview <span>(This Week)</span></h3>
-                <select className="dropdown-select">
-                  <option>This Week</option>
-                  <option>Last Week</option>
-                  <option>This Month</option>
-                </select>
+                <h3 className="chart-title">Labor Cost Overview <span>({
+                  dateFilter === 'all' ? 'All Time' :
+                  dateFilter === 'today' ? 'Today' :
+                  dateFilter === 'week' ? 'This Week' :
+                  dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                })</span></h3>
               </div>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart data={laborCostData} margin={{ top: 20, right: 30, left: 0, bottom: 0 }}>
+                  <LineChart 
+                    data={(() => {
+                      const data = dashboardData?.lineChartData || fallbackLaborCostData;
+                      if (data.length === 1 && data[0].name !== 'No Data') {
+                        // Pad single data point so line chart can render a line
+                        return [
+                          { name: 'Start', cost: 0 },
+                          data[0],
+                          { name: 'End', cost: 0 }
+                        ];
+                      }
+                      return data;
+                    })()} 
+                    margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
+                  >
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                     <XAxis 
                       dataKey="name" 
@@ -310,14 +339,19 @@ const Dashboard = ({ onLogout }) => {
             {/* Donut Chart */}
             <div className="chart-card">
               <div className="chart-header">
-                <h3 className="chart-title">Work Type Distribution <span>(Today)</span></h3>
+                <h3 className="chart-title">Work Type Distribution <span>({
+                  dateFilter === 'all' ? 'All Time' :
+                  dateFilter === 'today' ? 'Today' :
+                  dateFilter === 'week' ? 'This Week' :
+                  dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                })</span></h3>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
                 <div className="chart-container" style={{ flex: '1 1 250px', height: '220px', position: 'relative' }}>
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart>
                       <Pie
-                        data={workTypeData}
+                        data={dashboardData?.workTypeData || fallbackWorkTypeData}
                         cx="50%"
                         cy="50%"
                         innerRadius={60}
@@ -326,7 +360,7 @@ const Dashboard = ({ onLogout }) => {
                         dataKey="value"
                         stroke="none"
                       >
-                        {workTypeData.map((entry, index) => (
+                        {(dashboardData?.workTypeData || fallbackWorkTypeData).map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
@@ -341,25 +375,32 @@ const Dashboard = ({ onLogout }) => {
                     transform: 'translate(-50%, -50%)',
                     textAlign: 'center'
                   }}>
-                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0F172A' }}>2,450 Kg</div>
+                    <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0F172A' }}>
+                      {((dashboardData?.workTypeData || []).reduce((a, b) => a + b.value, 0)).toLocaleString('en-IN')} Kg
+                    </div>
                     <div style={{ fontSize: '0.85rem', color: '#6B7280' }}>Total Weight</div>
                   </div>
                 </div>
                 
                 <div className="donut-legend" style={{ flex: '1 1 200px' }}>
-                  {workTypeData.map((item, index) => (
+                  {(dashboardData?.workTypeData || []).map((item, index) => {
+                    const totalW = (dashboardData?.workTypeData || []).reduce((a, b) => a + b.value, 0);
+                    const pct = totalW ? Math.round((item.value / totalW) * 100) : 0;
+                    return (
                     <div className="legend-item" key={index}>
                       <div className="legend-color" style={{ backgroundColor: item.color }}></div>
                       <div className="legend-info">
                         <span className="legend-name">{item.name}</span>
-                        <span className="legend-value">{item.value.toLocaleString()} Kg ({Math.round((item.value / 2450) * 100)}%)</span>
+                        <span className="legend-value">{item.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Kg ({pct}%)</span>
                       </div>
                     </div>
-                  ))}
+                  )})}
                 </div>
               </div>
             </div>
           </div>
+          </>
+          )}
           
           <footer className="dashboard-footer">
             © 2025 Pramukh Scrap Management System. All rights reserved.
@@ -368,21 +409,37 @@ const Dashboard = ({ onLogout }) => {
         ) : activeTab === 'labor' ? (
           <LaborManagement 
             onAddEntry={() => setActiveTab('add-labor')} 
-            onEditEntry={() => setActiveTab('edit-labor')}
-            onViewEntry={() => setActiveTab('view-labor')}
+            onEditEntry={(id) => {
+              setSelectedLabor(id);
+              setActiveTab('edit-labor');
+            }}
+            onViewEntry={(id) => {
+              setSelectedLabor(id);
+              setActiveTab('view-labor');
+            }}
           />
         ) : activeTab === 'add-labor' || activeTab === 'edit-labor' ? (
-          <AddLaborEntry onCancel={() => setActiveTab('labor')} isEditMode={activeTab === 'edit-labor'} />
+          <AddLaborEntry onCancel={() => setActiveTab('labor')} isEditMode={activeTab === 'edit-labor'} laborId={selectedLabor} />
         ) : activeTab === 'view-labor' ? (
-          <ViewLaborEntry onBack={() => setActiveTab('labor')} />
+          <ViewLaborEntry onBack={() => setActiveTab('labor')} laborId={selectedLabor} />
         ) : activeTab === 'stock' ? (
-          <StockList onAddEntry={() => setActiveTab('add-stock')} onEditEntry={() => setActiveTab('edit-stock')} onViewEntry={() => setActiveTab('view-stock')} />
+          <StockList 
+            onAddEntry={() => setActiveTab('add-stock')} 
+            onEditEntry={(stock) => {
+              setSelectedStock(stock);
+              setActiveTab('edit-stock');
+            }} 
+            onViewEntry={(stock) => {
+              setSelectedStock(stock);
+              setActiveTab('view-stock');
+            }} 
+          />
         ) : activeTab === 'add-stock' ? (
           <AddStockEntry onCancel={() => setActiveTab('stock')} />
         ) : activeTab === 'edit-stock' ? (
-          <EditStockEntry onCancel={() => setActiveTab('stock')} />
+          <EditStockEntry stock={selectedStock} onCancel={() => setActiveTab('stock')} />
         ) : activeTab === 'view-stock' ? (
-          <ViewStockEntry onBack={() => setActiveTab('stock')} />
+          <ViewStockEntry stock={selectedStock} onBack={() => setActiveTab('stock')} />
         ) : null}
       </main>
     </div>

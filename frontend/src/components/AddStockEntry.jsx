@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   ChevronDown
 } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 import './AddStockEntry.css';
 
 const AddStockEntry = ({ onCancel }) => {
@@ -37,7 +38,7 @@ const AddStockEntry = ({ onCancel }) => {
     }
   };
 
-  const handleSave = (e) => {
+  const handleSave = async (e) => {
     e.preventDefault();
 
     const newErrors = {};
@@ -51,9 +52,27 @@ const AddStockEntry = ({ onCancel }) => {
       return;
     }
 
-    // Save logic would go here
-    console.log('Saving stock entry:', formData);
-    onCancel(); // For now, just return to list
+    try {
+      const response = await apiFetch('/stocks', {
+        method: 'POST',
+        body: JSON.stringify({
+          materialName: formData.materialName,
+          description: formData.description,
+          quantity: formData.quantity,
+          unit: formData.unit,
+          stockDate: formData.stockDate
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to save stock');
+      }
+      
+      onCancel(); // Return to list after saving
+    } catch (error) {
+      console.error('Error saving stock:', error);
+      alert('Failed to save stock entry. Please make sure the backend server is running.');
+    }
   };
 
   return (

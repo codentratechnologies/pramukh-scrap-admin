@@ -248,6 +248,10 @@
   border: 1px solid #FECACA;
 }
 
+.text-center {
+  text-align: center !important;
+}
+
 /* Pagination */
 .audit-pagination {
   display: flex;

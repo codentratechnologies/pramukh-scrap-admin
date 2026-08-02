@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Plus, 
   Search, 
@@ -12,23 +12,62 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 import './StockList.css';
-
-const dummyStockData = [
-  { id: 1, name: 'TMT Bar 12mm', stock: '1,250 kg', value: '₹ 85,625.00', status: 'Healthy' },
-  { id: 2, name: 'Cement 53 Grade', stock: '320 bag', value: '₹ 1,31,200.00', status: 'Healthy' },
-  { id: 3, name: 'Bricks (Red)', stock: '5,000 pcs', value: '₹ 31,000.00', status: 'Healthy' },
-  { id: 4, name: 'Sand (Fine)', stock: '75 CFT', value: '₹ 63,750.00', status: 'Low Stock' },
-  { id: 5, name: 'Aggregate 20mm', stock: '120 CFT', value: '₹ 1,38,000.00', status: 'Healthy' },
-  { id: 6, name: 'Wire 18 SWG', stock: '85 kg', value: '₹ 6,120.00', status: 'Low Stock' },
-  { id: 7, name: 'Paint (White)', stock: '42 ltr', value: '₹ 9,240.00', status: 'Healthy' },
-  { id: 8, name: 'Shuttering Plywood', stock: '28 sheet', value: '₹ 37,800.00', status: 'Out of Stock' },
-  { id: 9, name: 'Nails 2 Inch', stock: '15 kg', value: '₹ 1,170.00', status: 'Low Stock' },
-  { id: 10, name: 'RMC Grade M20', stock: '18 cum', value: '₹ 93,600.00', status: 'Healthy' },
-];
 
 const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [stocks, setStocks] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    fetchStocks();
+  }, []);
+
+  const fetchStocks = async () => {
+    try {
+      setLoading(true);
+      const res = await apiFetch('/stocks');
+      const json = await res.json();
+      if (json.success) {
+        setStocks(json.data);
+      }
+    } catch (err) {
+      console.error("Failed to fetch stocks:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filteredStocks = stocks.filter(stock => {
+    const term = searchTerm.toLowerCase();
+    if (!term) return true;
+    
+    const status = Number(stock.quantity) > 10 ? 'Healthy' : Number(stock.quantity) > 0 ? 'Low Stock' : 'Out of Stock';
+    const quantityStr = `${stock.quantity} ${stock.unit}`.toLowerCase();
+    
+    return (
+      (stock.materialName && stock.materialName.toLowerCase().includes(term)) ||
+      quantityStr.includes(term) ||
+      status.toLowerCase().includes(term)
+    );
+  });
+
+  const totalPages = Math.ceil(filteredStocks.length / itemsPerPage);
+  const paginatedStocks = filteredStocks.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
+
+  const handlePrevPage = () => {
+    if (currentPage > 1) setCurrentPage(currentPage - 1);
+  };
+  
+  const handleNextPage = () => {
+    if (currentPage < totalPages) setCurrentPage(currentPage + 1);
+  };
 
   const getStatusBadge = (status) => {
     let className = 'status-badge ';
@@ -61,19 +100,13 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           <Search size={18} className="search-icon" />
           <input 
             type="text" 
-            placeholder="Search by material name..." 
+            placeholder="Search material, quantity, or status..." 
             value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
+            onChange={(e) => {
+              setSearchTerm(e.target.value);
+              setCurrentPage(1);
+            }}
           />
-        </div>
-        
-        <div className="filter-actions">
-          <button className="btn-filter">
-            <Filter size={16} /> Filter
-          </button>
-          <button className="btn-reset">
-            <RotateCcw size={16} /> Reset
-          </button>
         </div>
       </div>
 
@@ -81,53 +114,86 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
         <table className="stock-table">
           <thead>
             <tr>
-              <th>#</th>
-              <th>Material Name <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Current Stock <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Stock Value <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Stock Status <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Actions</th>
+              <th className="text-center">#</th>
+              <th>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Material Name <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
+                </div>
+              </th>
+              <th>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Current Stock <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
+                </div>
+              </th>
+              <th>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  Stock Status <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
+                </div>
+              </th>
+              <th className="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
-            {dummyStockData.map((item, index) => (
-              <tr key={item.id}>
-                <td>{item.id}.</td>
-                <td className="fw-500">{item.name}</td>
-                <td>{item.stock}</td>
-                <td className="fw-500">{item.value}</td>
-                <td>{getStatusBadge(item.status)}</td>
-                <td>
-                  <div className="actions-container">
-                    <button className="action-btn view-btn" title="View Details" onClick={onViewEntry}>
-                      <Eye size={16} />
-                    </button>
-                    <button className="action-btn edit-btn" title="Edit Item" onClick={onEditEntry}>
-                      <Edit2 size={16} />
-                    </button>
-                    <button className="action-btn delete-btn" title="Delete Item">
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+            {loading ? (
+              <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>Loading stocks...</td></tr>
+            ) : (
+              <>
+                {paginatedStocks.length === 0 ? (
+                  <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem', color: '#64748B'}}>No stocks found.</td></tr>
+                ) : (
+                  paginatedStocks.map((item, index) => (
+                    <tr key={item.id}>
+                      <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}.</td>
+                      <td className="fw-500">{item.materialName}</td>
+                      <td>{item.quantity} {item.unit}</td>
+                      <td>{getStatusBadge(Number(item.quantity) > 10 ? 'Healthy' : Number(item.quantity) > 0 ? 'Low Stock' : 'Out of Stock')}</td>
+                      <td className="text-center">
+                        <div className="actions-container">
+                          <button className="action-btn view-btn" title="View Details" onClick={() => onViewEntry(item)}>
+                            <Eye size={16} />
+                          </button>
+                          <button className="action-btn edit-btn" title="Edit Item" onClick={() => onEditEntry(item)}>
+                            <Edit2 size={16} />
+                          </button>
+                          <button className="action-btn delete-btn" title="Delete Item">
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+                {/* Filler rows to maintain constant table height */}
+                {Array.from({ length: Math.max(0, itemsPerPage - (paginatedStocks.length === 0 ? 1 : paginatedStocks.length)) }).map((_, index) => (
+                  <tr key={`filler-${index}`} className="filler-row">
+                    <td colSpan="5" style={{ padding: '1.25rem', border: 'none' }}>&nbsp;</td>
+                  </tr>
+                ))}
+              </>
+            )}
           </tbody>
         </table>
-      </div>
 
-      <div className="pagination-section">
-        <div className="pagination-info">
-          Showing 1 to 10 of 58 entries
-        </div>
-        <div className="pagination-controls">
-          <button className="page-btn"><ChevronLeft size={16} /></button>
-          <button className="page-btn active">1</button>
-          <button className="page-btn">2</button>
-          <button className="page-btn">3</button>
-          <span className="page-dots">...</span>
-          <button className="page-btn">6</button>
-          <button className="page-btn"><ChevronRight size={16} /></button>
+        {/* Pagination inside table container */}
+        <div className="pagination-section" style={{ padding: '1rem 1.25rem', borderTop: '1px solid var(--border-light)' }}>
+          <div className="pagination-info">
+            Showing {filteredStocks.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredStocks.length)} of {filteredStocks.length} entries
+          </div>
+          <div className="pagination-controls">
+            <button className="page-btn" onClick={handlePrevPage} disabled={currentPage === 1}><ChevronLeft size={16} /></button>
+            
+            {[...Array(totalPages)].map((_, i) => (
+              <button 
+                key={i+1} 
+                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+            
+            <button className="page-btn" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}><ChevronRight size={16} /></button>
+          </div>
         </div>
       </div>
     </div>

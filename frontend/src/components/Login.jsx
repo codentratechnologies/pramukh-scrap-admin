@@ -8,7 +8,7 @@ const Login = ({ onLoginSuccess }) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  const handleLogin = (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     let isValid = true;
     setEmailError('');
@@ -33,15 +33,34 @@ const Login = ({ onLoginSuccess }) => {
 
     if (!isValid) return;
 
-    if (email === 'pramukhscrap36@gmail.com' && password === 'Pramukh@36') {
-      setError('');
-      if (onLoginSuccess) {
-        onLoginSuccess();
+    try {
+      const response = await fetch('http://127.0.0.1:8000/api/auth/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ email, password })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        // Save tokens
+        localStorage.setItem('access_token', data.access_token);
+        localStorage.setItem('refresh_token', data.refresh_token);
+        
+        setError('');
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        } else {
+          alert('Login successful');
+        }
       } else {
-        alert('Login successful');
+        setError(data.detail || 'Invalid email or password');
       }
-    } else {
-      setError('Invalid email or password. Please try again.');
+    } catch (err) {
+      console.error("Backend Login Error:", err);
+      setError('Connection error. Is the backend server running?');
     }
   };
 

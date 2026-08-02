@@ -91,15 +91,63 @@
 
 .date-icon {
   color: #9CA3AF;
+  flex-shrink: 0;
+}
+
+.date-range-box .react-datepicker-wrapper,
+.date-range-box .react-datepicker__input-container {
+  width: 95px;
+  flex-shrink: 0;
+  display: inline-block;
 }
 
 .date-input {
   border: none;
   outline: none;
-  width: 80px;
+  width: 100%;
+  padding: 0 !important;
+  margin: 0;
   font-family: inherit;
   font-size: 0.9rem;
   color: var(--text-main);
+  background: transparent;
+  text-align: center;
+}
+
+.filter-dropdown {
+  position: relative;
+  padding: 0;
+  min-width: 160px;
+}
+
+.filter-select {
+  width: 100%;
+  height: 100%;
+  border: none;
+  outline: none;
+  background: transparent;
+  cursor: pointer;
+  color: inherit;
+  font-size: 0.9rem;
+  font-family: inherit;
+  appearance: none;
+  padding: 0.6rem 2.2rem 0.6rem 1rem;
+}
+
+.filter-select option {
+  background-color: var(--white);
+  color: var(--text-main);
+  font-size: 0.9rem;
+  padding: 0.5rem;
+}
+
+.select-icon {
+  position: absolute;
+  right: 0.8rem;
+  top: 50%;
+  transform: translateY(-50%);
+  pointer-events: none;
+  color: #9CA3AF;
 }
 
 .date-separator {
@@ -182,6 +230,15 @@
 
 .lm-table tr:hover {
   background-color: #F8FAFC;
+}
+
+.lm-table tr.filler-row {
+  background-color: transparent !important;
+  pointer-events: none;
+}
+
+.lm-table tr.filler-row td {
+  border-bottom: none !important;
 }
 
 .fw-500 { font-weight: 500; }
@@ -343,3 +400,186 @@
     width: 40%;
   }
 }
+
+/* Custom Delete Modal */
+.delete-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+}
+
+.delete-modal-content {
+  background-color: var(--white);
+  border-radius: 12px;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  position: relative;
+}
+
+.delete-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.delete-modal-icon {
+  background-color: #FEF2F2;
+  color: #EF4444;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto;
+}
+
+.close-modal-btn {
+  background: none;
+  border: none;
+  color: #9CA3AF;
+  cursor: pointer;
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  transition: color 0.2s;
+}
+
+.close-modal-btn:hover {
+  color: #4B5563;
+}
+
+.delete-modal-title {
+  color: var(--blue-dark);
+  font-size: 1.25rem;
+  font-weight: 700;
+  margin-bottom: 0.75rem;
+}
+
+.delete-modal-text {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  line-height: 1.5;
+  margin-bottom: 2rem;
+}
+
+.delete-modal-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.delete-modal-actions button {
+  flex: 1;
+  padding: 0.75rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-secondary {
+  background-color: var(--white);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+}
+
+.btn-secondary:hover {
+  background-color: #F8FAFC;
+  border-color: #CBD5E1;
+}
+
+.btn-danger {
+  background-color: #EF4444;
+  border: none;
+  color: white;
+}
+
+.btn-danger:hover {
+  background-color: #DC2626;
+}
+
+ / *   C u s t o m   D r o p d o w n   S t y l e s   * / 
+ . c u s t o m - d r o p d o w n   { 
+     p o s i t i o n :   r e l a t i v e ; 
+     d i s p l a y :   f l e x ; 
+     a l i g n - i t e m s :   c e n t e r ; 
+     b a c k g r o u n d - c o l o r :   v a r ( - - w h i t e ) ; 
+     b o r d e r :   1 p x   s o l i d   v a r ( - - b o r d e r - l i g h t ) ; 
+     b o r d e r - r a d i u s :   8 p x ; 
+     p a d d i n g :   0 ; 
+     f o n t - s i z e :   0 . 9 r e m ; 
+     c o l o r :   v a r ( - - t e x t - m a i n ) ; 
+     m i n - w i d t h :   1 6 0 p x ; 
+     c u r s o r :   p o i n t e r ; 
+     u s e r - s e l e c t :   n o n e ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - h e a d e r   { 
+     d i s p l a y :   f l e x ; 
+     a l i g n - i t e m s :   c e n t e r ; 
+     j u s t i f y - c o n t e n t :   s p a c e - b e t w e e n ; 
+     w i d t h :   1 0 0 % ; 
+     p a d d i n g :   0 . 6 r e m   1 r e m ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - h e a d e r   . d r o p d o w n - i c o n   { 
+     c o l o r :   # 9 C A 3 A F ; 
+     t r a n s i t i o n :   t r a n s f o r m   0 . 2 s   e a s e ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - h e a d e r   . d r o p d o w n - i c o n . o p e n   { 
+     t r a n s f o r m :   r o t a t e ( 1 8 0 d e g ) ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - l i s t   { 
+     p o s i t i o n :   a b s o l u t e ; 
+     t o p :   c a l c ( 1 0 0 %   +   5 p x ) ; 
+     l e f t :   0 ; 
+     w i d t h :   1 0 0 % ; 
+     b a c k g r o u n d - c o l o r :   v a r ( - - w h i t e ) ; 
+     b o r d e r :   1 p x   s o l i d   v a r ( - - b o r d e r - l i g h t ) ; 
+     b o r d e r - r a d i u s :   8 p x ; 
+     b o x - s h a d o w :   0   4 p x   1 2 p x   r g b a ( 0 , 0 , 0 , 0 . 1 ) ; 
+     z - i n d e x :   5 0 ; 
+     m a x - h e i g h t :   2 5 0 p x ; 
+     o v e r f l o w - y :   a u t o ; 
+     p a d d i n g :   0 . 5 r e m   0 ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - i t e m   { 
+     p a d d i n g :   0 . 5 r e m   1 r e m ; 
+     c u r s o r :   p o i n t e r ; 
+     t r a n s i t i o n :   b a c k g r o u n d - c o l o r   0 . 2 s ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - i t e m : h o v e r   { 
+     b a c k g r o u n d - c o l o r :   # F 8 F A F C ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - i t e m . p l a c e h o l d e r   { 
+     c o l o r :   # 6 4 7 4 8 B ; 
+     f o n t - w e i g h t :   5 0 0 ; 
+     b o r d e r - b o t t o m :   1 p x   s o l i d   # E 2 E 8 F 0 ; 
+     m a r g i n - b o t t o m :   0 . 2 5 r e m ; 
+ } 
+ 
+ . c u s t o m - d r o p d o w n - i t e m . s e l e c t e d   { 
+     b a c k g r o u n d - c o l o r :   # E F F 6 F F ; 
+     c o l o r :   # 2 5 6 3 E B ; 
+     f o n t - w e i g h t :   5 0 0 ; 
+ } 
+  
+ 

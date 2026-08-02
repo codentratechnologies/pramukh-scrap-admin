@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Home, 
   ChevronRight, 
@@ -11,58 +11,79 @@ import {
   Wallet,
   Percent
 } from 'lucide-react';
+import { apiFetch } from '../utils/api';
 import './ViewLaborEntry.css';
 
-const ViewLaborEntry = ({ onBack }) => {
-  const [expandedRow, setExpandedRow] = useState(1);
+const ViewLaborEntry = ({ onBack, laborId }) => {
+  const [expandedRow, setExpandedRow] = useState(null);
+  const [entryData, setEntryData] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data to match the design screenshot
-  const entryData = {
-    date: '21 May 2025',
-    supervisor: 'Ramesh Patel',
-    remarks: 'Monthly labor entry for grinding and kabadu work.',
-    entryNo: 'LE-250521-001',
-    totalAmount: '1,31,450',
-    deductions: '4,230',
-    payableAmount: '1,27,220',
-    employees: [
-      {
-        id: 1,
-        name: 'Ramesh Patel',
-        totalWeight: '1,200',
-        totalAmount: '54,000',
-        workTypes: [
-          { type: 'Grinding', weight: '800', rate: '45.00', amount: '36,000' },
-          { type: 'Kabadu', weight: '400', rate: '45.00', amount: '18,000' }
-        ]
-      },
-      {
-        id: 2,
-        name: 'Mahesh Kumar',
-        totalWeight: '600',
-        totalAmount: '25,200',
-        workTypes: []
-      },
-      {
-        id: 3,
-        name: 'Sanjay Singh',
-        totalWeight: '650',
-        totalAmount: '28,600',
-        workTypes: []
-      },
-      {
-        id: 4,
-        name: 'Mahendra Joshi',
-        totalWeight: '550',
-        totalAmount: '23,650',
-        workTypes: []
+  useEffect(() => {
+    if (laborId) {
+      fetchLaborEntry();
+    }
+  }, [laborId]);
+
+  const fetchLaborEntry = async () => {
+    try {
+      setLoading(true);
+      const res = await apiFetch(`/labor/${laborId}`);
+      const json = await res.json();
+      if (json.success) {
+        const data = json.data;
+        
+        // Transform for UI
+        setEntryData({
+          date: new Date(data.entryDate).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' }),
+          supervisor: data.supervisorName || 'N/A',
+          remarks: data.remarks || 'No remarks provided.',
+          entryNo: `LE-${new Date(data.entryDate).getTime().toString().slice(-6)}`,
+          totalAmount: data.grandTotalAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+          deductions: data.deductions?.toLocaleString('en-IN', { maximumFractionDigits: 2 }) || '0',
+          payableAmount: data.payableAmount?.toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+          employees: data.employees?.map((emp) => {
+            const empTotalWeight = emp.workTypes?.reduce((sum, wt) => sum + (parseFloat(wt.weight) || 0), 0) || 0;
+            const empTotalAmount = emp.workTypes?.reduce((sum, wt) => sum + ((parseFloat(wt.weight) || 0) * (parseFloat(wt.rate) || 0)), 0) || 0;
+            
+            return {
+              id: emp.id,
+              name: emp.name,
+              totalWeight: empTotalWeight.toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+              totalAmount: empTotalAmount.toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+              workTypes: emp.workTypes?.map(wt => ({
+                type: wt.type,
+                weight: parseFloat(wt.weight).toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+                rate: parseFloat(wt.rate).toLocaleString('en-IN', { maximumFractionDigits: 2 }),
+                amount: ((parseFloat(wt.weight) || 0) * (parseFloat(wt.rate) || 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })
+              })) || []
+            };
+          }) || []
+        });
       }
-    ]
+    } catch (err) {
+      console.error("Failed to fetch labor entry details:", err);
+    } finally {
+      setLoading(false);
+    }
   };
 
   const toggleRow = (id) => {
     setExpandedRow(expandedRow === id ? null : id);
   };
+
+  if (loading) {
+    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading labor entry details...</div>;
+  }
+
+  if (!entryData) {
+    return (
+      <div style={{ padding: '2rem', textAlign: 'center' }}>
+        <p>Entry not found.</p>
+        <button onClick={onBack} style={{ marginTop: '1rem', padding: '0.5rem 1rem' }}>Back</button>
+      </div>
+    );
+  }
 
   return (
     <div className="view-labor-container">

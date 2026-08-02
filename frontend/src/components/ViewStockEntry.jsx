@@ -14,27 +14,84 @@ import {
   ChevronsRight,
   ChevronDown
 } from 'lucide-react';
+import * as XLSX from 'xlsx';
 import './ViewStockEntry.css';
 
-const ViewStockEntry = ({ onBack }) => {
-  // Dummy data
-  const materialData = {
-    name: 'Copper Wire',
-    description: 'High quality copper wire scrap used in recycling and melting.',
-    currentStock: '450.5 kg',
-    stockValue: '₹54,060.00',
-    createdDate: '10-Oct-23',
-    lastUpdated: '25-Oct-23 10:00 AM'
+const ViewStockEntry = ({ stock, onBack }) => {
+  const materialData = stock ? {
+    name: stock.materialName || 'N/A',
+    description: stock.description || 'No description provided.',
+    currentStock: `${stock.quantity || 0} ${stock.unit || 'kg'}`,
+    createdDate: stock.stockDate || 'N/A',
+    lastUpdated: stock.createdAt ? new Date(stock.createdAt).toLocaleString() : 'N/A'
+  } : {
+    name: 'Loading...',
+    description: '',
+    currentStock: '',
+    createdDate: '',
+    lastUpdated: ''
   };
 
-  const auditLogData = [
-    { id: 1, date: '25-Oct-23 10:00 AM', action: 'ADDED', quantity: '50.0 kg', remarks: 'Furnace melting' },
-    { id: 2, date: '24-Oct-23 04:30 PM', action: 'REMOVED', quantity: '-20.0 kg', remarks: 'Damaged material removed' },
-    { id: 3, date: '23-Oct-23 11:20 AM', action: 'ADDED', quantity: '100.0 kg', remarks: 'New stock purchase' },
-    { id: 4, date: '20-Oct-23 03:15 PM', action: 'REMOVED', quantity: '-10.5 kg', remarks: 'Sample testing' },
-    { id: 5, date: '18-Oct-23 09:45 AM', action: 'ADDED', quantity: '80.0 kg', remarks: 'Supplier delivery' },
-    { id: 6, date: '15-Oct-23 02:10 PM', action: 'ADDED', quantity: '60.0 kg', remarks: 'Opening stock' },
-  ];
+  const rawHistory = stock?.history || {};
+  
+  // Fallback for old entries without history table
+  const defaultLog = { 
+      id: 1, 
+      date: stock?.createdAt ? new Date(stock.createdAt).toLocaleString() : (stock?.stockDate || 'N/A'), 
+      action: 'ADDED', 
+      quantity: `${stock?.quantity || 0} ${stock?.unit || 'kg'}`, 
+      remarks: 'Initial stock entry' 
+  };
+
+  const auditLogData = Object.keys(rawHistory).length > 0
+    ? Object.keys(rawHistory).map(key => ({
+        id: key,
+        date: new Date(rawHistory[key].date).toLocaleString(),
+        rawDate: new Date(rawHistory[key].date).getTime(),
+        action: rawHistory[key].action,
+        quantity: `${rawHistory[key].action === 'REMOVED' ? '-' : '+'}${rawHistory[key].quantity} ${rawHistory[key].unit}`,
+        remarks: rawHistory[key].remarks
+      })).sort((a, b) => b.rawDate - a.rawDate)
+    : (stock ? [defaultLog] : []);
+
+  const handleExport = () => {
+    if (!stock) return;
+
+    // 1. Create a new workbook
+    const wb = XLSX.utils.book_new();
+    
+    // 2. Combine all data into a single sheet
+    const exportData = [
+      ["Material Profile Summary"],
+      [],
+      ["Material Name", materialData.name],
+      ["Description", materialData.description],
+      ["Current Stock", materialData.currentStock],
+      ["Created Date", materialData.createdDate],
+      ["Last Updated", materialData.lastUpdated],
+      [],
+      [],
+      ["Audit Log History"],
+      [],
+      ["Date & Time", "Action", "Quantity", "Remarks"]
+    ];
+
+    // Append Audit Logs
+    auditLogData.forEach(log => {
+      exportData.push([log.date, log.action, log.quantity, log.remarks || ""]);
+    });
+
+    const ws = XLSX.utils.aoa_to_sheet(exportData);
+    
+    // Set appropriate column widths
+    ws['!cols'] = [{ wch: 22 }, { wch: 40 }, { wch: 15 }, { wch: 40 }];
+    
+    XLSX.utils.book_append_sheet(wb, ws, "Stock Report");
+
+    // 3. Save file
+    const safeName = (materialData.name || "Stock").replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    XLSX.writeFile(wb, `${safeName}_report.xlsx`);
+  };
 
   return (
     <div className="view-stock-container">
@@ -74,24 +131,13 @@ const ViewStockEntry = ({ onBack }) => {
           {/* Right Stat Cards */}
           <div className="profile-stat-cards">
             {/* Current Stock */}
-            <div className="stat-info-card">
+            <div className="stat-info-card" style={{ gridColumn: 'span 2' }}>
               <div className="stat-icon-circle green-light-bg">
                 <Box size={20} className="green-icon" />
               </div>
               <div className="stat-text-area">
                 <div className="stat-label">Current Stock</div>
                 <div className="stat-value text-green">{materialData.currentStock}</div>
-              </div>
-            </div>
-
-            {/* Stock Value */}
-            <div className="stat-info-card">
-              <div className="stat-icon-circle green-light-bg">
-                <Banknote size={20} className="green-icon" />
-              </div>
-              <div className="stat-text-area">
-                <div className="stat-label">Stock Value</div>
-                <div className="stat-value">{materialData.stockValue}</div>
               </div>
             </div>
 
@@ -132,8 +178,8 @@ const ViewStockEntry = ({ onBack }) => {
               <p className="section-subtitle">Chronological ledger of all stock adjustments.</p>
             </div>
           </div>
-          <button className="btn-export">
-            <Download size={18} className="green-icon" /> Export
+          <button className="btn-export" onClick={handleExport}>
+            <Download size={18} className="green-icon" /> Export Excel
           </button>
         </div>
 
@@ -142,8 +188,8 @@ const ViewStockEntry = ({ onBack }) => {
             <thead>
               <tr>
                 <th>Date & Time</th>
-                <th>Action</th>
-                <th>Quantity</th>
+                <th className="text-center">Action</th>
+                <th className="text-center">Quantity</th>
                 <th>Remarks</th>
               </tr>
             </thead>
@@ -151,12 +197,12 @@ const ViewStockEntry = ({ onBack }) => {
               {auditLogData.map((log) => (
                 <tr key={log.id}>
                   <td>{log.date}</td>
-                  <td>
+                  <td className="text-center">
                     <span className={`action-badge ${log.action === 'ADDED' ? 'badge-added' : 'badge-removed'}`}>
                       {log.action}
                     </span>
                   </td>
-                  <td>{log.quantity}</td>
+                  <td className="text-center fw-600">{log.quantity}</td>
                   <td className="text-muted">{log.remarks}</td>
                 </tr>
               ))}
@@ -166,22 +212,11 @@ const ViewStockEntry = ({ onBack }) => {
 
         {/* Pagination */}
         <div className="audit-pagination">
-          <div className="pagination-text">Showing 1 to 6 of 12 entries</div>
+          <div className="pagination-text">Showing 1 to {auditLogData.length} of {auditLogData.length} entries</div>
           <div className="pagination-controls">
             <button className="page-nav-btn"><ChevronsLeft size={16} /></button>
             <button className="page-num-btn active">1</button>
-            <button className="page-num-btn">2</button>
-            <button className="page-num-btn">3</button>
-            <span className="page-dots">...</span>
             <button className="page-nav-btn"><ChevronsRight size={16} /></button>
-          </div>
-          <div className="page-size-selector">
-            <select className="size-select">
-              <option value="10">10 / page</option>
-              <option value="20">20 / page</option>
-              <option value="50">50 / page</option>
-            </select>
-            <ChevronDown size={14} className="size-chevron" />
           </div>
         </div>
 
