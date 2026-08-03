@@ -113,3 +113,13 @@ def adjust_stock(stock_id: str, adjustment: StockAdjustment):
         raise
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
+
+@router.delete("/stocks/{stock_id}", dependencies=[Depends(verify_token)])
+def delete_stock(stock_id: str):
+    if not db:
+        raise HTTPException(status_code=500, detail="Database is not initialized.")
+    try:
+        db.child("stock_management").child(stock_id).remove()
+        return {"success": True, "message": "Stock entry deleted successfully"}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

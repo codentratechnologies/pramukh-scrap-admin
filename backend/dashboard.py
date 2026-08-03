@@ -57,6 +57,29 @@ def get_dashboard_stats(
         total_payable_amount = 0.0
         unique_employees = set()
         
+        # Today / Yesterday boundaries
+        dt_today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        dt_yesterday_start = dt_today_start - timedelta(days=1)
+        dt_yesterday_end = dt_today_start - timedelta(microseconds=1)
+        
+        today_overview = {
+            "laborEntries": 0,
+            "totalWeight": 0.0,
+            "totalDeductions": 0.0,
+            "payableAmount": 0.0,
+            "uniqueEmployees": set(),
+            "laborCost": 0.0
+        }
+        
+        yesterday_summary = {
+            "laborEntries": 0,
+            "totalWeight": 0.0,
+            "totalDeductions": 0.0,
+            "payableAmount": 0.0,
+            "uniqueEmployees": set(),
+            "laborCost": 0.0
+        }
+        
         work_type_weights = {
             "Grinding": 0.0,
             "Kabadu": 0.0,
@@ -70,36 +93,60 @@ def get_dashboard_stats(
             entry_date_str = entry.get('entryDate', '')
             entry_dt = parse_date(entry_date_str)
             
-            # Apply date filter
+            entry_cost = float(entry.get('grandTotalAmount', 0))
+            entry_payable = float(entry.get('payableAmount', 0))
+            
+            # Apply date filter for main summary
+            in_range = True
             if dt_start and dt_end and entry_dt:
                 if not (dt_start <= entry_dt <= dt_end):
-                    continue
-            elif filter_type and filter_type != "custom": # If a filter was requested but dates didn't parse, skip or handle? We assume filter applies
-                 # Wait, if dt_start is set, we check it. If no filter requested, include all.
-                 pass
+                    in_range = False
+            
+            if in_range:
+                total_labor_entries += 1
+                total_labor_cost += entry_cost
+                total_payable_amount += entry_payable
+                
+                if entry_dt:
+                    day_str = entry_dt.strftime("%d %b")
+                    cost_by_day[day_str] = cost_by_day.get(day_str, 0) + entry_cost
+                
+                for emp in entry.get('employees', []):
+                    name = emp.get('name', '')
+                    if name:
+                        unique_employees.add(name.lower().strip())
+                    for wt in emp.get('workTypes', []):
+                        w_type = wt.get('type')
+                        weight = float(wt.get('weight', 0))
+                        if w_type in work_type_weights:
+                            work_type_weights[w_type] += weight
+                        else:
+                            work_type_weights[w_type] = weight
 
-            total_labor_entries += 1
-            entry_cost = float(entry.get('grandTotalAmount', 0))
-            total_labor_cost += entry_cost
-            total_payable_amount += float(entry.get('payableAmount', 0))
-            
-            # For line chart
+            # Today vs Yesterday Stats
             if entry_dt:
-                day_str = entry_dt.strftime("%d %b")
-                cost_by_day[day_str] = cost_by_day.get(day_str, 0) + entry_cost
-            
-            # For donut chart
-            for emp in entry.get('employees', []):
-                name = emp.get('name', '')
-                if name:
-                    unique_employees.add(name.lower().strip())
-                for wt in emp.get('workTypes', []):
-                    w_type = wt.get('type')
-                    weight = float(wt.get('weight', 0))
-                    if w_type in work_type_weights:
-                        work_type_weights[w_type] += weight
-                    else:
-                        work_type_weights[w_type] = weight
+                if dt_today_start <= entry_dt <= now:
+                    today_overview["laborEntries"] += 1
+                    today_overview["laborCost"] += entry_cost
+                    today_overview["payableAmount"] += entry_payable
+                    for emp in entry.get("employees", []):
+                        name = emp.get('name', '')
+                        if name:
+                            today_overview["uniqueEmployees"].add(name.lower().strip())
+                        today_overview["totalDeductions"] += float(emp.get("deductions", 0) or 0)
+                        for wt in emp.get("workTypes", []):
+                            today_overview["totalWeight"] += float(wt.get("weight", 0) or 0)
+                elif dt_yesterday_start <= entry_dt <= dt_yesterday_end:
+                    yesterday_summary["laborEntries"] += 1
+                    yesterday_summary["laborCost"] += entry_cost
+                    yesterday_summary["payableAmount"] += entry_payable
+                    for emp in entry.get("employees", []):
+                        name = emp.get('name', '')
+                        if name:
+                            yesterday_summary["uniqueEmployees"].add(name.lower().strip())
+                        yesterday_summary["totalDeductions"] += float(emp.get("deductions", 0) or 0)
+                        for wt in emp.get("workTypes", []):
+                            yesterday_summary["totalWeight"] += float(wt.get("weight", 0) or 0)
 
         # Format Work Type Data for Recharts
         colors = ["#22C55E", "#3B82F6", "#F97316", "#A855F7", "#EC4899"]
@@ -142,12 +189,29 @@ def get_dashboard_stats(
         else:
             line_chart_data = [{"name": "No Data", "cost": 0}]
 
+        def calc_growth(today_val, yesterday_val):
+            if yesterday_val == 0:
+                return 100 if today_val > 0 else 0
+            return round(((today_val - yesterday_val) / yesterday_val) * 100)
+
         stats = {
             "summary": {
-                "totalLaborEntries": total_labor_entries,
-                "totalEmployees": len(unique_employees),
-                "totalLaborCost": total_labor_cost,
-                "totalPayableAmount": total_payable_amount
+                "totalLaborEntries": today_overview["laborEntries"] if filter_type == "today" else total_labor_entries,
+                "totalEmployees": len(today_overview["uniqueEmployees"]) if filter_type == "today" else len(unique_employees),
+                "totalLaborCost": today_overview["laborCost"] if filter_type == "today" else total_labor_cost,
+                "totalPayableAmount": today_overview["payableAmount"] if filter_type == "today" else total_payable_amount,
+                "growth": {
+                    "entries": calc_growth(today_overview["laborEntries"], yesterday_summary["laborEntries"]),
+                    "employees": calc_growth(len(today_overview["uniqueEmployees"]), len(yesterday_summary["uniqueEmployees"])),
+                    "cost": calc_growth(today_overview["laborCost"], yesterday_summary["laborCost"]),
+                    "payable": calc_growth(today_overview["payableAmount"], yesterday_summary["payableAmount"])
+                }
+            },
+            "todayOverview": {
+                "laborEntries": today_overview["laborEntries"],
+                "totalWeight": today_overview["totalWeight"],
+                "totalDeductions": today_overview["totalDeductions"],
+                "payableAmount": today_overview["payableAmount"]
             },
             "workTypeData": work_type_data,
             "lineChartData": line_chart_data

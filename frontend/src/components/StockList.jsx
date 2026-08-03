@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Plus, 
   Search, 
@@ -12,6 +13,7 @@ import {
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
+import Loader from './Loader';
 import { apiFetch } from '../utils/api';
 import './StockList.css';
 
@@ -38,6 +40,24 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
       console.error("Failed to fetch stocks:", err);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDeleteStock = async (stockId) => {
+    if (!window.confirm("Are you sure you want to delete this stock entry?")) return;
+    
+    try {
+      const res = await apiFetch(`/stocks/${stockId}`, { method: 'DELETE' });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        toast.success(json.message || 'Stock entry deleted successfully');
+        setStocks(stocks.filter(s => s.id !== stockId));
+      } else {
+        toast.error('Failed to delete: ' + (json.detail || 'Unknown error'));
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      toast.error("Connection error while deleting.");
     }
   };
 
@@ -135,7 +155,7 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="5" style={{textAlign: 'center', padding: '2rem'}}>Loading stocks...</td></tr>
+              <tr><td colSpan="5" style={{padding: '2rem'}}><Loader text="Loading stocks..." /></td></tr>
             ) : (
               <>
                 {paginatedStocks.length === 0 ? (
@@ -155,7 +175,7 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                           <button className="action-btn edit-btn" title="Edit Item" onClick={() => onEditEntry(item)}>
                             <Edit2 size={16} />
                           </button>
-                          <button className="action-btn delete-btn" title="Delete Item">
+                          <button className="action-btn delete-btn" title="Delete Item" onClick={() => handleDeleteStock(item.id)}>
                             <Trash2 size={16} />
                           </button>
                         </div>

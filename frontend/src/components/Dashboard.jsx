@@ -12,20 +12,16 @@ import {
   Banknote,
   CreditCard,
   Package,
-  User
+  User,
+  LogOut,
+  TrendingDown,
+  UsersRound,
+  FileText,
+  IndianRupee,
+  Wallet
 } from 'lucide-react';
-import { 
-  LineChart, 
-  Line, 
-  XAxis, 
-  YAxis, 
-  CartesianGrid, 
-  Tooltip, 
-  ResponsiveContainer,
-  PieChart, 
-  Pie, 
-  Cell
-} from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import Loader from './Loader';
 import LaborManagement from './LaborManagement';
 import AddLaborEntry from './AddLaborEntry';
 import ViewLaborEntry from './ViewLaborEntry';
@@ -67,6 +63,22 @@ const Dashboard = ({ onLogout }) => {
   
   const [dashboardData, setDashboardData] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(true);
+  
+  const [adminEmail, setAdminEmail] = useState('');
+
+  useEffect(() => {
+    const token = localStorage.getItem('access_token');
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload && payload.sub) {
+          setAdminEmail(payload.sub);
+        }
+      } catch (e) {
+        console.error("Failed to decode token", e);
+      }
+    }
+  }, []);
   
   const [dateFilter, setDateFilter] = useState('today');
   const [customStart, setCustomStart] = useState('');
@@ -152,13 +164,16 @@ const Dashboard = ({ onLogout }) => {
         </nav>
         
         <div className="sidebar-footer">
+          <a href="#" className="nav-item logout-btn" onClick={(e) => { e.preventDefault(); onLogout(); }}>
+            <LogOut className="nav-icon" /> <span className="nav-text">Logout</span>
+          </a>
           <div className="nav-user-profile">
             <div className="avatar">
               <User size={18} />
             </div>
             <div className="user-info nav-text">
-              <span className="user-name">Admin</span>
-              <span className="user-role">Super Admin</span>
+              <span className="user-name">Astik Hirpara</span>
+              <span className="user-role" style={{ fontSize: '0.75rem', overflow: 'hidden', textOverflow: 'ellipsis' }}>{adminEmail || 'Super Admin'}</span>
             </div>
           </div>
         </div>
@@ -232,50 +247,122 @@ const Dashboard = ({ onLogout }) => {
             </div>
 
             {loadingDashboard ? (
-              <div style={{ padding: '2rem', textAlign: 'center' }}>Loading dashboard data...</div>
+              <Loader text="Loading dashboard data..." />
             ) : (
               <>
             {/* Top 4 Stat Cards */}
           <div className="stats-grid">
+            {/* Total Labor Entries */}
             <div className="stat-card">
-              <div className="stat-icon green">
-                <Users size={24} />
+              <div className="stat-icon-wrapper light-green-bg">
+                <FileText className="stat-icon green-icon" size={24} />
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Labor Entries</div>
                 <div className="stat-value">{dashboardData?.summary?.totalLaborEntries || 0}</div>
+                <div className={`stat-growth ${dashboardData?.summary?.growth?.entries >= 0 ? 'positive' : 'negative'}`}>
+                  {dashboardData?.summary?.growth?.entries >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  <span>{Math.abs(dashboardData?.summary?.growth?.entries || 0)}% vs yesterday</span>
+                </div>
               </div>
             </div>
             
+            {/* Total Employees */}
             <div className="stat-card">
-              <div className="stat-icon blue">
-                <Users size={24} />
+              <div className="stat-icon-wrapper light-blue-bg">
+                <UsersRound className="stat-icon blue-icon" size={24} />
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Employees</div>
                 <div className="stat-value">{dashboardData?.summary?.totalEmployees || 0}</div>
+                <div className={`stat-growth ${dashboardData?.summary?.growth?.employees >= 0 ? 'positive' : 'negative'}`}>
+                  {dashboardData?.summary?.growth?.employees >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  <span>{Math.abs(dashboardData?.summary?.growth?.employees || 0)}% vs yesterday</span>
+                </div>
               </div>
             </div>
             
+            {/* Total Labor Cost */}
             <div className="stat-card">
-              <div className="stat-icon orange">
-                <span style={{fontSize: '20px', fontWeight: 'bold'}}>₹</span>
+              <div className="stat-icon-wrapper light-orange-bg">
+                <IndianRupee className="stat-icon orange-icon" size={24} />
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Labor Cost</div>
                 <div className="stat-value">₹ {(dashboardData?.summary?.totalLaborCost || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                <div className={`stat-growth ${dashboardData?.summary?.growth?.cost >= 0 ? 'positive' : 'negative'}`}>
+                  {dashboardData?.summary?.growth?.cost >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  <span>{Math.abs(dashboardData?.summary?.growth?.cost || 0)}% vs yesterday</span>
+                </div>
               </div>
             </div>
             
+            {/* Total Payable Amount */}
             <div className="stat-card">
-              <div className="stat-icon purple">
-                <Banknote size={24} />
+              <div className="stat-icon-wrapper light-purple-bg">
+                <Wallet className="stat-icon purple-icon" size={24} />
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Payable Amount</div>
                 <div className="stat-value">₹ {(dashboardData?.summary?.totalPayableAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                <div className={`stat-growth ${dashboardData?.summary?.growth?.payable >= 0 ? 'positive' : 'negative'}`}>
+                  {dashboardData?.summary?.growth?.payable >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                  <span>{Math.abs(dashboardData?.summary?.growth?.payable || 0)}% vs yesterday</span>
+                </div>
               </div>
             </div>
+          </div>
+
+          {/* Today Overview */}
+          <div style={{ marginBottom: '1rem' }}>
+            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>Today Overview</h3>
+          </div>
+          <div className="stats-grid" style={{ marginBottom: '2rem' }}>
+            
+            <div className="stat-card">
+              <div className="stat-icon-wrapper light-green-bg">
+                <ClipboardList className="stat-icon green-icon" size={24} />
+              </div>
+              <div className="stat-details">
+                <div className="stat-title">Labor Entries</div>
+                <div className="stat-value">{dashboardData?.todayOverview?.laborEntries || 0}</div>
+                <div className="today-stat-subtitle">Today</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon-wrapper light-blue-bg">
+                <Weight className="stat-icon blue-icon" size={24} />
+              </div>
+              <div className="stat-details">
+                <div className="stat-title">Total Weight</div>
+                <div className="stat-value">{(dashboardData?.todayOverview?.totalWeight || 0).toLocaleString('en-IN')} Kg</div>
+                <div className="today-stat-subtitle">Today</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon-wrapper light-purple-bg">
+                <Banknote className="stat-icon purple-icon" size={24} />
+              </div>
+              <div className="stat-details">
+                <div className="stat-title">Total Deductions</div>
+                <div className="stat-value">₹ {(dashboardData?.todayOverview?.totalDeductions || 0).toLocaleString('en-IN')}</div>
+                <div className="today-stat-subtitle">Today</div>
+              </div>
+            </div>
+
+            <div className="stat-card">
+              <div className="stat-icon-wrapper light-green-bg">
+                <CreditCard className="stat-icon green-icon" size={24} />
+              </div>
+              <div className="stat-details">
+                <div className="stat-title">Payable Amount</div>
+                <div className="stat-value">₹ {(dashboardData?.todayOverview?.payableAmount || 0).toLocaleString('en-IN')}</div>
+                <div className="today-stat-subtitle">Today</div>
+              </div>
+            </div>
+
           </div>
 
           {/* Charts Area */}
@@ -292,7 +379,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height="100%">
-                  <LineChart 
+                  <AreaChart 
                     data={(() => {
                       const data = dashboardData?.lineChartData || fallbackLaborCostData;
                       if (data.length === 1 && data[0].name !== 'No Data') {
@@ -307,6 +394,12 @@ const Dashboard = ({ onLogout }) => {
                     })()} 
                     margin={{ top: 20, right: 30, left: 0, bottom: 0 }}
                   >
+                    <defs>
+                      <linearGradient id="colorCost" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="5%" stopColor="#22C55E" stopOpacity={0.3}/>
+                        <stop offset="95%" stopColor="#22C55E" stopOpacity={0}/>
+                      </linearGradient>
+                    </defs>
                     <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#E5E7EB" />
                     <XAxis 
                       dataKey="name" 
@@ -323,15 +416,18 @@ const Dashboard = ({ onLogout }) => {
                       dx={-10}
                     />
                     <Tooltip content={<CustomTooltip />} />
-                    <Line 
+                    <Area 
                       type="monotone" 
                       dataKey="cost" 
-                      stroke="#22C55E" 
+                      stroke="#22C55E"
+                      fillOpacity={1}
+                      fill="url(#colorCost)"
                       strokeWidth={3}
                       dot={{ r: 4, fill: '#22C55E', strokeWidth: 2, stroke: '#fff' }}
-                      activeDot={{ r: 6, fill: '#22C55E' }}
+                      activeDot={{ r: 6, fill: '#22C55E', stroke: '#fff', strokeWidth: 2 }}
+                      label={{ fill: '#0F172A', fontSize: 10, position: 'top', formatter: (val) => `₹ ${val.toLocaleString('en-IN')}` }}
                     />
-                  </LineChart>
+                  </AreaChart>
                 </ResponsiveContainer>
               </div>
             </div>

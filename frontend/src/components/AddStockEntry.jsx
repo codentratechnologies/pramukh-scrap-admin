@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Box, 
   ClipboardList, 
@@ -68,10 +69,11 @@ const AddStockEntry = ({ onCancel }) => {
         throw new Error('Failed to save stock');
       }
       
+      toast.success('Stock entry added successfully');
       onCancel(); // Return to list after saving
     } catch (error) {
       console.error('Error saving stock:', error);
-      alert('Failed to save stock entry. Please make sure the backend server is running.');
+      toast.error('Failed to save stock entry. Please make sure the backend server is running.');
     }
   };
 

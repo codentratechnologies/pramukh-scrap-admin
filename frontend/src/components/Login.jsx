@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import toast from 'react-hot-toast';
 
 const Login = ({ onLoginSuccess }) => {
   const [email, setEmail] = useState('');
@@ -50,12 +51,12 @@ const Login = ({ onLoginSuccess }) => {
         localStorage.setItem('refresh_token', data.refresh_token);
         
         setError('');
+        toast.success('Login successful');
         if (onLoginSuccess) {
           onLoginSuccess();
-        } else {
-          alert('Login successful');
         }
       } else {
+        toast.error(data.detail || 'Invalid email or password');
         setError(data.detail || 'Invalid email or password');
       }
     } catch (err) {

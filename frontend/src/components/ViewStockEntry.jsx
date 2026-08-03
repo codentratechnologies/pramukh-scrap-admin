@@ -14,6 +14,7 @@ import {
   ChevronsRight,
   ChevronDown
 } from 'lucide-react';
+import Loader from './Loader';
 import * as XLSX from 'xlsx';
 import './ViewStockEntry.css';
 
@@ -92,6 +93,10 @@ const ViewStockEntry = ({ stock, onBack }) => {
     const safeName = (materialData.name || "Stock").replace(/[^a-z0-9]/gi, '_').toLowerCase();
     XLSX.writeFile(wb, `${safeName}_report.xlsx`);
   };
+
+  if (!stock) {
+    return <Loader text="Loading stock entry details..." />;
+  }
 
   return (
     <div className="view-stock-container">

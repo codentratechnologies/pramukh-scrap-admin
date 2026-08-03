@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Search, 
   Plus, 
@@ -12,8 +13,10 @@ import {
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
-  X
+  X,
+  Download
 } from 'lucide-react';
+import Loader from './Loader';
 import { apiFetch } from '../utils/api';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
@@ -106,12 +109,13 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
         setData(data.filter(row => row.id !== entryToDelete));
         setDeleteModalOpen(false);
         setEntryToDelete(null);
+        toast.success('Labor entry deleted successfully');
       } else {
-        alert('Failed to delete entry: ' + (json.detail || 'Unknown error'));
+        toast.error('Failed to delete entry: ' + (json.detail || 'Unknown error'));
       }
     } catch (err) {
       console.error("Failed to delete labor entry:", err);
-      alert("Connection error while deleting entry.");
+      toast.error("Connection error while deleting entry.");
     }
   };
 
@@ -270,7 +274,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           </thead>
           <tbody>
             {loading ? (
-              <tr><td colSpan="9" style={{textAlign: 'center', padding: '2rem'}}>Loading...</td></tr>
+              <tr><td colSpan="9" style={{padding: '2rem'}}><Loader text="Loading labor entries..." /></td></tr>
             ) : (
               <>
                 {paginatedData.length === 0 ? (

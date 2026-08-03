@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
   Home, 
   ChevronRight, 
@@ -7,8 +8,10 @@ import {
   Trash2, 
   Plus, 
   GripVertical,
-  Save
+  Save,
+  ChevronUp
 } from 'lucide-react';
+import Loader from './Loader';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 import { apiFetch } from '../utils/api';
@@ -61,7 +64,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
       }
     } catch (err) {
       console.error("Failed to load labor entry:", err);
-      alert("Failed to load labor entry for editing.");
+      toast.error("Failed to load labor entry for editing.");
     } finally {
       setIsLoading(false);
     }
@@ -228,13 +231,14 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
         const data = await res.json();
         
         if (res.ok) {
+          toast.success(`Labor entry ${isEditMode ? 'updated' : 'added'} successfully`);
           onCancel(); // Back to list
         } else {
-          alert('Failed to save labor entry: ' + (data.detail || 'Unknown error'));
+          toast.error('Failed to save labor entry: ' + (data.detail || 'Unknown error'));
         }
       } catch (err) {
         console.error("Save error:", err);
-        alert('Connection error while saving.');
+        toast.error('Connection error while saving.');
       } finally {
         setIsSubmitting(false);
       }
@@ -253,7 +257,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
   const formatWeight = (val) => val.toLocaleString('en-IN', { maximumFractionDigits: 2 });
 
   if (isLoading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading labor entry...</div>;
+    return <Loader text="Loading labor entry..." />;
   }
 
   return (

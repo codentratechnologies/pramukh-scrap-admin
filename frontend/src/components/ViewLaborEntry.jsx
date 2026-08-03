@@ -11,6 +11,7 @@ import {
   Wallet,
   Percent
 } from 'lucide-react';
+import Loader from './Loader';
 import { apiFetch } from '../utils/api';
 import './ViewLaborEntry.css';
 
@@ -73,7 +74,7 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
   };
 
   if (loading) {
-    return <div style={{ padding: '2rem', textAlign: 'center' }}>Loading labor entry details...</div>;
+    return <Loader text="Loading labor entry details..." />;
   }
 
   if (!entryData) {

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import toast from 'react-hot-toast';
 import { 
   FileText, 
   Lock, 
@@ -14,6 +15,7 @@ import {
   CircleDot,
   Circle
 } from 'lucide-react';
+import Loader from './Loader';
 import { apiFetch } from '../utils/api';
 import './EditStockEntry.css';
 
@@ -92,7 +94,7 @@ const EditStockEntry = ({ stock, onCancel }) => {
     }
     
     if (!stock?.id) {
-      alert("Error: Stock ID is missing. Please go back and try again.");
+      toast.error("Error: Stock ID is missing. Please go back and try again.");
       return;
     }
 
@@ -108,14 +110,19 @@ const EditStockEntry = ({ stock, onCancel }) => {
         throw new Error(result.detail || 'Failed to save adjustment');
       }
       
+      toast.success('Stock adjusted successfully');
       onCancel(); // Redirect back to list
     } catch (err) {
       console.error(err);
-      alert('Error adjusting stock: ' + err.message);
+      toast.error('Error adjusting stock: ' + err.message);
     } finally {
       setIsSubmitting(false);
     }
   };
+
+  if (!stock) {
+    return <Loader text="Loading stock entry details..." />;
+  }
 
   return (
     <div className="edit-stock-container">
