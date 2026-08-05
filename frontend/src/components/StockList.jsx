@@ -105,7 +105,8 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
 
   return (
     <div className="stock-container">
-      <div className="stock-header-section">
+      <div className="stock-card">
+        <div className="stock-header-section">
         <div>
           <h2 className="stock-title">Stock List</h2>
           <p className="stock-subtitle">Manage and view all stock items.</p>
@@ -215,6 +216,7 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             <button className="page-btn" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}><ChevronRight size={16} /></button>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

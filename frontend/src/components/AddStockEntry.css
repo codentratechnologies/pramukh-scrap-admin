@@ -4,6 +4,9 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* Header */
@@ -139,6 +142,7 @@
 
 .row-input {
   flex: 1;
+  max-width: 600px;
 }
 
 .form-input {
@@ -177,6 +181,19 @@
   margin-top: 0.4rem;
 }
 
+/* Date Input */
+.date-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  max-width: 300px;
+}
+
+.date-input {
+  padding-left: 2.5rem !important;
+  text-align: left !important;
+}
+
 /* Custom Select */
 .custom-select-wrapper {
   position: relative;
@@ -211,7 +228,7 @@
   min-height: 100px;
 }
 
-.char-count {
+.textarea-wrapper .char-count {
   position: absolute;
   bottom: 0.75rem;
   right: 1rem;

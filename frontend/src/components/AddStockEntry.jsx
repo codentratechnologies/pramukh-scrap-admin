@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import toast from 'react-hot-toast';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
 import { 
   Box, 
   ClipboardList, 
@@ -20,7 +22,7 @@ const AddStockEntry = ({ onCancel }) => {
     description: '',
     quantity: '',
     unit: 'kg',
-    stockDate: ''
+    stockDate: new Date()
   });
   const [errors, setErrors] = useState({});
 
@@ -61,7 +63,7 @@ const AddStockEntry = ({ onCancel }) => {
           description: formData.description,
           quantity: formData.quantity,
           unit: formData.unit,
-          stockDate: formData.stockDate
+          stockDate: formData.stockDate ? formData.stockDate.toISOString().split('T')[0] : null
         })
       });
 
@@ -210,14 +212,17 @@ const AddStockEntry = ({ onCancel }) => {
                 </div>
               </div>
               <div className="row-input">
-                <div className="date-input-wrapper">
-                  <Calendar size={18} className="date-input-icon" />
-                  <input 
-                    type="date" 
-                    name="stockDate" 
-                    value={formData.stockDate} 
-                    onChange={handleChange}
+                <div className="date-input-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
+                  <Calendar size={18} className="date-input-icon" style={{ zIndex: 1, position: 'absolute', left: '1rem', color: '#6B7280' }} />
+                  <DatePicker
+                    selected={formData.stockDate}
+                    onChange={(date) => {
+                      setFormData({...formData, stockDate: date});
+                      if (errors.stockDate) setErrors({...errors, stockDate: null});
+                    }}
                     className={`form-input date-input ${errors.stockDate ? 'has-error' : ''}`}
+                    dateFormat="dd-MM-yyyy"
+                    placeholderText="Select date"
                   />
                 </div>
                 {errors.stockDate && <div className="field-error">{errors.stockDate}</div>}

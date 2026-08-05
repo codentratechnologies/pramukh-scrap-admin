@@ -110,19 +110,6 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
           <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} /> Back to List
         </button>
 
-        <div className="breadcrumbs" style={{ marginBottom: 0 }}>
-          <div className="breadcrumb-item active" onClick={onBack}>
-            <Home size={14} /> Labor Management
-          </div>
-          <ChevronRight size={14} className="breadcrumb-separator" />
-          <div className="breadcrumb-item active" onClick={onBack}>
-            Labor Entries
-          </div>
-          <ChevronRight size={14} className="breadcrumb-separator" />
-          <div className="breadcrumb-item current">
-            View Labor Entry
-          </div>
-        </div>
       </div>
 
       {/* Top Info Cards */}

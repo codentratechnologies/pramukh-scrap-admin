@@ -9,12 +9,14 @@ import {
   Eye,
   Edit,
   Trash2,
-  ArrowUpDown,
   ChevronLeft,
   ChevronRight,
   AlertTriangle,
   X,
-  Download
+  Download,
+  ArrowUpDown,
+  RefreshCw,
+  MoreVertical
 } from 'lucide-react';
 import Loader from './Loader';
 import { apiFetch } from '../utils/api';
@@ -171,7 +173,8 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
 
   return (
     <div className="lm-container">
-      <div className="lm-header-section">
+      <div className="lm-card">
+        <div className="lm-header-section">
         <div>
           <h2 className="lm-title">Labor Entries</h2>
           <p className="lm-subtitle">View and manage all labor entries.</p>
@@ -201,7 +204,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             selected={fromDate ? new Date(fromDate) : null}
             onChange={(date) => { setFromDate(date ? date.toISOString() : ''); setCurrentPage(1); }}
             placeholderText="From Date"
-            className="date-input"
+            className="date-input from-date"
             dateFormat="dd MMM yyyy"
           />
           <span className="date-separator">→</span>
@@ -209,7 +212,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             selected={toDate ? new Date(toDate) : null}
             onChange={(date) => { setToDate(date ? date.toISOString() : ''); setCurrentPage(1); }}
             placeholderText="To Date"
-            className="date-input"
+            className="date-input to-date"
             dateFormat="dd MMM yyyy"
           />
         </div>
@@ -253,7 +256,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             setCurrentPage(1);
           }}
         >
-          <FilterX size={16} /> Clear Filters
+          <RefreshCw size={16} /> Clear Filters
         </button>
       </div>
 
@@ -261,7 +264,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
         <table className="lm-table">
           <thead>
             <tr>
-              <th>#</th>
+              <th className="text-center">#</th>
               <th>Date <ArrowUpDown size={14} className="sort-icon" /></th>
               <th>Supervisor <ArrowUpDown size={14} className="sort-icon" /></th>
               <th>Work Types <ArrowUpDown size={14} className="sort-icon" /></th>
@@ -269,7 +272,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
               <th>Total Amount <ArrowUpDown size={14} className="sort-icon" /></th>
               <th>Deductions <ArrowUpDown size={14} className="sort-icon" /></th>
               <th>Payable Amount <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Actions</th>
+              <th className="text-center">Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -282,7 +285,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                 ) : (
                   paginatedData.map((row, index) => (
                     <tr key={row.id}>
-                      <td>{(currentPage - 1) * itemsPerPage + index + 1}</td>
+                      <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}</td>
                       <td className="fw-500">{row.date}</td>
                       <td className="fw-500">{row.supervisor}</td>
                       <td>
@@ -297,10 +300,10 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                       <td className="fw-500">₹ {row.deductions?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
                       <td className="fw-600 text-green">₹ {row.payable?.toLocaleString('en-IN', { maximumFractionDigits: 2 })}</td>
                       <td>
-                        <div className="actions-container">
+                        <div className="actions-container" style={{ justifyContent: 'center' }}>
                           <button className="action-btn view-btn" title="View" onClick={() => onViewEntry(row.id)}><Eye size={16} /></button>
                           <button className="action-btn edit-btn" title="Edit" onClick={() => onEditEntry(row.id)}><Edit size={16} /></button>
-                          <button className="action-btn delete-btn" title="Delete" onClick={() => handleDeleteClick(row.id)}><Trash2 size={16} /></button>
+                          <button className="action-btn" title="More Options" onClick={() => handleDeleteClick(row.id)}><MoreVertical size={16} /></button>
                         </div>
                       </td>
                     </tr>
@@ -319,24 +322,29 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
 
       <div className="pagination-section">
         <div className="pagination-info">
-          Showing {filteredData.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} entries
+          Showing {(currentPage - 1) * itemsPerPage + (paginatedData.length > 0 ? 1 : 0)} to {Math.min(currentPage * itemsPerPage, filteredData.length)} of {filteredData.length} entries
         </div>
         <div className="pagination-controls">
-          <button className="page-btn" onClick={handlePrevPage} disabled={currentPage === 1}><ChevronLeft size={16} /></button>
-          
-          {[...Array(totalPages)].map((_, i) => (
-            <button 
-              key={i+1} 
-              className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </button>
-          ))}
-          
-          <button className="page-btn" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}><ChevronRight size={16} /></button>
+          <button className="page-btn" disabled={currentPage === 1} onClick={handlePrevPage}>
+            <ChevronLeft size={16} />
+          </button>
+          <div className="page-numbers">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button 
+                key={i} 
+                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+                onClick={() => setCurrentPage(i + 1)}
+              >
+                {i + 1}
+              </button>
+            ))}
+          </div>
+          <button className="page-btn" disabled={currentPage === totalPages || totalPages === 0} onClick={handleNextPage}>
+            <ChevronRight size={16} />
+          </button>
         </div>
       </div>
+    </div>
 
       {/* Delete Confirmation Modal */}
       {deleteModalOpen && (

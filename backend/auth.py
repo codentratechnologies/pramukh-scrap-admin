@@ -48,11 +48,9 @@ def login(request: LoginRequest):
         })
         admin_data = {"email": initial_email, "password": initial_password_hash}
         
-    if request.email != admin_data.get("email"):
-        raise HTTPException(status_code=401, detail="Unauthorized user")
-        
-    if hashed_input_pwd != admin_data.get("password"):
-        raise HTTPException(status_code=401, detail="Invalid password")
+    if request.email != admin_data.get("email") or hashed_input_pwd != admin_data.get("password"):
+        raise HTTPException(status_code=401, detail="Invalid email or password")
+
         
     # Generate Tokens
     access_token = create_access_token(

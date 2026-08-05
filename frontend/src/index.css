@@ -23,6 +23,32 @@ body {
   min-height: 100vh;
 }
 
+/* React Datepicker Custom Styles Global Fix */
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
+  width: 100%;
+  display: block;
+}
+
+/* Thin Custom Scrollbar for Tables */
+.table-container::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background-color: #CBD5E1;
+  border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background-color: #94A3B8;
+}
+
 .login-wrapper {
   display: flex;
   min-height: 100vh;

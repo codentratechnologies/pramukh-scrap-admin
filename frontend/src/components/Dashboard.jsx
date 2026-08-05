@@ -54,6 +54,19 @@ const CustomTooltip = ({ active, payload, label }) => {
   return null;
 };
 
+const PieCustomTooltip = ({ active, payload }) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="custom-tooltip" style={{ padding: '8px 12px' }}>
+        <p className="value" style={{ color: '#000000', fontSize: '0.95rem', margin: 0 }}>
+          {payload[0].name} : {payload[0].name === 'No Data' ? '0' : payload[0].value.toLocaleString('en-IN')} Kg
+        </p>
+      </div>
+    );
+  }
+  return null;
+};
+
 const Dashboard = ({ onLogout }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
@@ -460,7 +473,7 @@ const Dashboard = ({ onLogout }) => {
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
                       </Pie>
-                      <Tooltip />
+                      <Tooltip content={<PieCustomTooltip />} offset={35} />
                     </PieChart>
                   </ResponsiveContainer>
                   {/* Center Text */}
@@ -472,7 +485,9 @@ const Dashboard = ({ onLogout }) => {
                     textAlign: 'center'
                   }}>
                     <div style={{ fontSize: '1.25rem', fontWeight: 'bold', color: '#0F172A' }}>
-                      {((dashboardData?.workTypeData || []).reduce((a, b) => a + b.value, 0)).toLocaleString('en-IN')} Kg
+                      {((dashboardData?.workTypeData || []).length === 1 && (dashboardData?.workTypeData || [])[0].name === 'No Data') 
+                        ? '0' 
+                        : ((dashboardData?.workTypeData || []).reduce((a, b) => a + b.value, 0)).toLocaleString('en-IN')} Kg
                     </div>
                     <div style={{ fontSize: '0.85rem', color: '#6B7280' }}>Total Weight</div>
                   </div>
@@ -487,7 +502,10 @@ const Dashboard = ({ onLogout }) => {
                       <div className="legend-color" style={{ backgroundColor: item.color }}></div>
                       <div className="legend-info">
                         <span className="legend-name">{item.name}</span>
-                        <span className="legend-value">{item.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Kg ({pct}%)</span>
+                        <span className="legend-value">
+                          {item.name === 'No Data' ? '0' : item.value.toLocaleString('en-IN', { maximumFractionDigits: 2 })} Kg 
+                          ({item.name === 'No Data' ? 0 : pct}%)
+                        </span>
                       </div>
                     </div>
                   )})}

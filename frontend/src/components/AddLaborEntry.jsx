@@ -262,21 +262,6 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
 
   return (
     <div className="add-labor-container">
-      {/* Breadcrumbs */}
-      <div className="breadcrumbs">
-        <div className="breadcrumb-item active" onClick={onCancel}>
-          <Home size={14} /> Labor Management
-        </div>
-        <ChevronRight size={14} className="breadcrumb-separator" />
-        <div className="breadcrumb-item active" onClick={onCancel}>
-          <Home size={14} /> Labor Entries
-        </div>
-        <ChevronRight size={14} className="breadcrumb-separator" />
-        <div className="breadcrumb-item current">
-          {isEditMode ? 'Edit Labor Entry' : 'Add Labor Entry'}
-        </div>
-      </div>
-
       {/* Section 1: Entry Details */}
       <div className="form-section">
         <div className="section-header">

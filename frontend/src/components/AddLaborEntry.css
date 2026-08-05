@@ -1,7 +1,12 @@
 .add-labor-container {
-  padding: 1.5rem 2rem;
-  background-color: var(--bg-main);
+  padding: 2rem;
+  background-color: var(--bg-main, #F9FAFB);
   flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+  max-width: 1600px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 /* Breadcrumbs */
@@ -143,8 +148,10 @@
 }
 
 /* React Datepicker Custom Styles */
-.react-datepicker-wrapper {
+.react-datepicker-wrapper,
+.react-datepicker__input-container {
   width: 100%;
+  display: block;
 }
 .react-datepicker {
   font-family: inherit !important;
