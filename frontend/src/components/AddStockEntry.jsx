@@ -11,10 +11,15 @@ import {
   X, 
   Save, 
   CheckCircle2,
-  ChevronDown
+  ChevronDown,
+  Home,
+  ChevronRight,
+  Plus
 } from 'lucide-react';
 import { apiFetch } from '../utils/api';
 import './AddStockEntry.css';
+
+
 
 const AddStockEntry = ({ onCancel }) => {
   const [formData, setFormData] = useState({
@@ -22,7 +27,7 @@ const AddStockEntry = ({ onCancel }) => {
     description: '',
     quantity: '',
     unit: 'kg',
-    stockDate: new Date()
+    stockDate: null
   });
   const [errors, setErrors] = useState({});
 
@@ -81,7 +86,21 @@ const AddStockEntry = ({ onCancel }) => {
 
   return (
     <div className="add-stock-container">
-      <div className="add-stock-header">
+      {/* Breadcrumbs */}
+      <div className="breadcrumbs">
+        <span className="breadcrumb-item active" onClick={onCancel}>
+          <Home size={16} /> Stock Management
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item active" onClick={onCancel}>
+          <ClipboardList size={16} /> Stock List
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item current">Add Stock Entry</span>
+      </div>
+      
+      <div className="add-stock-card">
+        <div className="add-stock-header">
         <div className="header-icon-wrapper">
           <Box className="header-icon" />
           <PlusBadge />
@@ -108,26 +127,19 @@ const AddStockEntry = ({ onCancel }) => {
                 </div>
               </div>
               <div className="row-input">
-                <div className="custom-select-wrapper">
-                  <select 
-                    name="materialName" 
-                    value={formData.materialName} 
+                  <input 
+                    type="text"
+                    name="materialName"
+                    value={formData.materialName}
                     onChange={handleChange}
-                    className={`form-input custom-select ${errors.materialName ? 'has-error' : ''}`}
-                  >
-                    <option value="" disabled>Select material</option>
-                    <option value="TMT Bar 12mm">TMT Bar 12mm</option>
-                    <option value="Cement 53 Grade">Cement 53 Grade</option>
-                    <option value="Bricks (Red)">Bricks (Red)</option>
-                    <option value="Sand (Fine)">Sand (Fine)</option>
-                  </select>
-                  <ChevronDown size={16} className="select-chevron" />
-                </div>
+                    className={`form-input ${errors.materialName ? 'error-border' : ''}`}
+                    placeholder="Enter material name"
+                  />
                 {errors.materialName && <div className="field-error">{errors.materialName}</div>}
               </div>
             </div>
 
-
+            <div className="form-divider"></div>
 
             {/* Description */}
             <div className="form-row">
@@ -156,7 +168,7 @@ const AddStockEntry = ({ onCancel }) => {
               </div>
             </div>
 
-
+            <div className="form-divider"></div>
 
             {/* Quantity */}
             <div className="form-row">
@@ -179,26 +191,15 @@ const AddStockEntry = ({ onCancel }) => {
                     className="form-input quantity-input"
                     placeholder="Enter quantity"
                   />
-                  <div className="unit-select-wrapper">
-                    <select 
-                      name="unit" 
-                      value={formData.unit} 
-                      onChange={handleChange}
-                      className="unit-select"
-                    >
-                      <option value="kg">kg</option>
-                      <option value="bag">bag</option>
-                      <option value="pcs">pcs</option>
-                      <option value="cft">cft</option>
-                    </select>
-                    <ChevronDown size={14} className="unit-chevron" />
+                  <div className="unit-select-wrapper" style={{ padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontWeight: '500' }}>
+                    kg
                   </div>
                 </div>
                 {errors.quantity && <div className="field-error">{errors.quantity}</div>}
               </div>
             </div>
 
-
+            <div className="form-divider"></div>
 
             {/* Stock Date */}
             <div className="form-row">
@@ -212,8 +213,8 @@ const AddStockEntry = ({ onCancel }) => {
                 </div>
               </div>
               <div className="row-input">
-                <div className="date-input-wrapper" style={{ display: 'flex', alignItems: 'center' }}>
-                  <Calendar size={18} className="date-input-icon" style={{ zIndex: 1, position: 'absolute', left: '1rem', color: '#6B7280' }} />
+                <div className="date-input-wrapper">
+                  <Calendar size={18} className="date-input-icon" />
                   <DatePicker
                     selected={formData.stockDate}
                     onChange={(date) => {
@@ -222,7 +223,7 @@ const AddStockEntry = ({ onCancel }) => {
                     }}
                     className={`form-input date-input ${errors.stockDate ? 'has-error' : ''}`}
                     dateFormat="dd-MM-yyyy"
-                    placeholderText="Select date"
+                    placeholderText="Select stock date"
                   />
                 </div>
                 {errors.stockDate && <div className="field-error">{errors.stockDate}</div>}
@@ -264,6 +265,7 @@ const AddStockEntry = ({ onCancel }) => {
             <Save size={18} /> Save Stock
           </button>
         </div>
+      </div>
       </div>
     </div>
   );

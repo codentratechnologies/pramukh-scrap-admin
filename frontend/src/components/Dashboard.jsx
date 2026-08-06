@@ -18,9 +18,10 @@ import {
   UsersRound,
   FileText,
   IndianRupee,
-  Wallet
+  Wallet,
+  UserPlus
 } from 'lucide-react';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, AreaChart, Area, PieChart, Pie, Cell, Label, ReferenceLine } from 'recharts';
 import Loader from './Loader';
 import LaborManagement from './LaborManagement';
 import AddLaborEntry from './AddLaborEntry';
@@ -30,6 +31,9 @@ import AddStockEntry from './AddStockEntry';
 import EditStockEntry from './EditStockEntry';
 import ViewStockEntry from './ViewStockEntry';
 import { apiFetch } from '../utils/api';
+import DatePicker from "react-datepicker";
+import "react-datepicker/dist/react-datepicker.css";
+import CustomSelect from './common/CustomSelect';
 import './Dashboard.css';
 
 // Dummy Data for Line Chart (Fallback)
@@ -40,6 +44,14 @@ const fallbackLaborCostData = [
 // Dummy Data for Donut Chart (Fallback)
 const fallbackWorkTypeData = [
   { name: 'No Data', value: 1, color: '#E5E7EB' }
+];
+
+const dateFilterOptions = [
+  { value: "all", label: "All Time" },
+  { value: "today", label: "Today" },
+  { value: "week", label: "This Week" },
+  { value: "month", label: "This Month" },
+  { value: "custom", label: "Custom Date" }
 ];
 
 const CustomTooltip = ({ active, payload, label }) => {
@@ -221,6 +233,7 @@ const Dashboard = ({ onLogout }) => {
 
         {activeTab === 'dashboard' ? (
           <div className="dashboard-body">
+            {/* 
             <div className="dashboard-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: '#FFFFFF', padding: '15px 20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
               <div style={{ fontWeight: '600', color: '#0F172A', fontSize: '1.1rem' }}>
                 Overview Performance
@@ -258,6 +271,7 @@ const Dashboard = ({ onLogout }) => {
                 )}
               </div>
             </div>
+            */}
 
             {loadingDashboard ? (
               <Loader text="Loading dashboard data..." />
@@ -268,7 +282,7 @@ const Dashboard = ({ onLogout }) => {
             {/* Total Labor Entries */}
             <div className="stat-card">
               <div className="stat-icon-wrapper light-green-bg">
-                <FileText className="stat-icon green-icon" size={24} />
+                <UserPlus className="stat-icon green-icon" size={24} />
               </div>
               <div className="stat-details">
                 <div className="stat-title">Total Labor Entries</div>
@@ -327,55 +341,55 @@ const Dashboard = ({ onLogout }) => {
           </div>
 
           {/* Today Overview */}
-          <div style={{ marginBottom: '1rem' }}>
-            <h3 style={{ fontSize: '1.1rem', fontWeight: '700', color: '#0F172A' }}>Today Overview</h3>
-          </div>
-          <div className="stats-grid" style={{ marginBottom: '2rem' }}>
-            
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-green-bg">
-                <ClipboardList className="stat-icon green-icon" size={24} />
+          <div className="today-overview-container">
+            <h3 className="today-overview-title">Today Overview</h3>
+            <div className="today-overview-grid">
+              
+              <div className="today-stat-item">
+                <div className="stat-icon-wrapper light-green-bg">
+                  <ClipboardList className="stat-icon green-icon" size={24} />
+                </div>
+                <div className="today-stat-info">
+                  <div className="today-stat-label">Labor Entries</div>
+                  <div className="today-stat-value">{dashboardData?.todayOverview?.laborEntries || 0}</div>
+                  <div className="today-stat-subtitle">Today</div>
+                </div>
               </div>
-              <div className="stat-details">
-                <div className="stat-title">Labor Entries</div>
-                <div className="stat-value">{dashboardData?.todayOverview?.laborEntries || 0}</div>
-                <div className="today-stat-subtitle">Today</div>
-              </div>
-            </div>
 
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-blue-bg">
-                <Weight className="stat-icon blue-icon" size={24} />
+              <div className="today-stat-item">
+                <div className="stat-icon-wrapper light-blue-bg">
+                  <Weight className="stat-icon blue-icon" size={24} />
+                </div>
+                <div className="today-stat-info">
+                  <div className="today-stat-label">Total Weight</div>
+                  <div className="today-stat-value">{(dashboardData?.todayOverview?.totalWeight || 0).toLocaleString('en-IN')} Kg</div>
+                  <div className="today-stat-subtitle">Today</div>
+                </div>
               </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Weight</div>
-                <div className="stat-value">{(dashboardData?.todayOverview?.totalWeight || 0).toLocaleString('en-IN')} Kg</div>
-                <div className="today-stat-subtitle">Today</div>
-              </div>
-            </div>
 
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-purple-bg">
-                <Banknote className="stat-icon purple-icon" size={24} />
+              <div className="today-stat-item">
+                <div className="stat-icon-wrapper light-purple-bg">
+                  <Banknote className="stat-icon purple-icon" size={24} />
+                </div>
+                <div className="today-stat-info">
+                  <div className="today-stat-label">Total Deductions</div>
+                  <div className="today-stat-value">₹ {(dashboardData?.todayOverview?.totalDeductions || 0).toLocaleString('en-IN')}</div>
+                  <div className="today-stat-subtitle">Today</div>
+                </div>
               </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Deductions</div>
-                <div className="stat-value">₹ {(dashboardData?.todayOverview?.totalDeductions || 0).toLocaleString('en-IN')}</div>
-                <div className="today-stat-subtitle">Today</div>
-              </div>
-            </div>
 
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-green-bg">
-                <CreditCard className="stat-icon green-icon" size={24} />
+              <div className="today-stat-item" style={{ borderRight: 'none' }}>
+                <div className="stat-icon-wrapper light-green-bg">
+                  <CreditCard className="stat-icon green-icon" size={24} />
+                </div>
+                <div className="today-stat-info">
+                  <div className="today-stat-label">Payable Amount</div>
+                  <div className="today-stat-value">₹ {(dashboardData?.todayOverview?.payableAmount || 0).toLocaleString('en-IN')}</div>
+                  <div className="today-stat-subtitle">Today</div>
+                </div>
               </div>
-              <div className="stat-details">
-                <div className="stat-title">Payable Amount</div>
-                <div className="stat-value">₹ {(dashboardData?.todayOverview?.payableAmount || 0).toLocaleString('en-IN')}</div>
-                <div className="today-stat-subtitle">Today</div>
-              </div>
-            </div>
 
+            </div>
           </div>
 
           {/* Charts Area */}
@@ -389,6 +403,15 @@ const Dashboard = ({ onLogout }) => {
                   dateFilter === 'week' ? 'This Week' :
                   dateFilter === 'month' ? 'This Month' : 'Custom Date'
                 })</span></h3>
+                <div style={{ width: '150px' }}>
+                  <CustomSelect
+                    name="dateFilter"
+                    value={dateFilter}
+                    onChange={(e) => setDateFilter(e.target.value)}
+                    options={dateFilterOptions}
+                    className="chart-dropdown-mode"
+                  />
+                </div>
               </div>
               <div className="chart-container">
                 <ResponsiveContainer width="100%" height="100%">
@@ -445,8 +468,7 @@ const Dashboard = ({ onLogout }) => {
               </div>
             </div>
 
-            {/* Donut Chart */}
-            <div className="chart-card">
+            <div className="chart-card" style={{ display: 'flex', flexDirection: 'column' }}>
               <div className="chart-header">
                 <h3 className="chart-title">Work Type Distribution <span>({
                   dateFilter === 'all' ? 'All Time' :
@@ -455,26 +477,28 @@ const Dashboard = ({ onLogout }) => {
                   dateFilter === 'month' ? 'This Month' : 'Custom Date'
                 })</span></h3>
               </div>
-              <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1rem', justifyContent: 'center' }}>
-                <div className="chart-container" style={{ flex: '1 1 250px', height: '220px', position: 'relative' }}>
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
-                      <Pie
-                        data={dashboardData?.workTypeData || fallbackWorkTypeData}
-                        cx="50%"
-                        cy="50%"
-                        innerRadius={60}
-                        outerRadius={85}
-                        paddingAngle={2}
-                        dataKey="value"
-                        stroke="none"
-                      >
+              <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '1.5rem', width: '100%', justifyContent: 'center' }}>
+                  <div className="chart-container" style={{ flex: '0 0 250px', height: '250px', position: 'relative' }}>
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={dashboardData?.workTypeData || fallbackWorkTypeData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={90}
+                          outerRadius={120}
+                          paddingAngle={0}
+                          dataKey="value"
+                          stroke="#ffffff"
+                          strokeWidth={2}
+                        >
                         {(dashboardData?.workTypeData || fallbackWorkTypeData).map((entry, index) => (
                           <Cell key={`cell-${index}`} fill={entry.color} />
                         ))}
-                      </Pie>
-                      <Tooltip content={<PieCustomTooltip />} offset={35} />
-                    </PieChart>
+                        </Pie>
+                        <Tooltip content={<PieCustomTooltip />} />
+                      </PieChart>
                   </ResponsiveContainer>
                   {/* Center Text */}
                   <div style={{
@@ -493,7 +517,7 @@ const Dashboard = ({ onLogout }) => {
                   </div>
                 </div>
                 
-                <div className="donut-legend" style={{ flex: '1 1 200px' }}>
+                <div className="donut-legend" style={{ flex: '1 1 auto', minWidth: '120px' }}>
                   {(dashboardData?.workTypeData || []).map((item, index) => {
                     const totalW = (dashboardData?.workTypeData || []).reduce((a, b) => a + b.value, 0);
                     const pct = totalW ? Math.round((item.value / totalW) * 100) : 0;
@@ -512,6 +536,7 @@ const Dashboard = ({ onLogout }) => {
                 </div>
               </div>
             </div>
+          </div>
           </div>
           </>
           )}

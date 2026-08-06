@@ -9,12 +9,17 @@ import {
   Plus, 
   GripVertical,
   Save,
-  ChevronUp
+  ChevronUp,
+  ClipboardList,
+  UserPlus,
+  X
 } from 'lucide-react';
 import Loader from './Loader';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { format } from 'date-fns';
 import { apiFetch } from '../utils/api';
+import CustomSelect from './common/CustomSelect';
 import './AddLaborEntry.css';
 
 const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
@@ -30,11 +35,104 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
 
+  // Dynamic Supervisors State
+  const [supervisorsList, setSupervisorsList] = useState([]);
+  const [showSupervisorModal, setShowSupervisorModal] = useState(false);
+  const [newSupervisorName, setNewSupervisorName] = useState('');
+  const [isAddingSupervisor, setIsAddingSupervisor] = useState(false);
+
+  // Dynamic Employees State
+  const [employeeList, setEmployeeList] = useState([]);
+  const [addingNewEmpRowId, setAddingNewEmpRowId] = useState(null);
+  const [newEmpName, setNewEmpName] = useState('');
+  const [isAddingEmployee, setIsAddingEmployee] = useState(false);
+
+  // Dynamic Work Types State
+  const [workTypeList, setWorkTypeList] = useState([]);
+  const [addingNewWtId, setAddingNewWtId] = useState(null); // stores `${empId}-${wtId}`
+  const [newWtName, setNewWtName] = useState('');
+  const [isAddingWorkType, setIsAddingWorkType] = useState(false);
+
   useEffect(() => {
+    fetchSupervisors();
+    fetchEmployees();
+    fetchWorkTypes();
     if (isEditMode && laborId) {
       loadLaborEntry();
     }
   }, [isEditMode, laborId]);
+
+  const fetchSupervisors = async () => {
+    try {
+      const res = await apiFetch('/supervisors');
+      const json = await res.json();
+      if (json.success) {
+        setSupervisorsList(json.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch supervisors:", err);
+    }
+  };
+
+  const fetchEmployees = async () => {
+    try {
+      const res = await apiFetch('/employees');
+      const json = await res.json();
+      if (json.success) {
+        setEmployeeList(json.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch employees:", err);
+    }
+  };
+
+  const fetchWorkTypes = async () => {
+    try {
+      const res = await apiFetch('/worktypes');
+      const json = await res.json();
+      if (json.success) {
+        setWorkTypeList(json.data || []);
+      }
+    } catch (err) {
+      console.error("Failed to fetch work types:", err);
+    }
+  };
+
+  const handleAddNewSupervisor = async (e) => {
+    e.preventDefault();
+    if (!newSupervisorName.trim()) {
+      toast.error('Supervisor name is required');
+      return;
+    }
+    
+    setIsAddingSupervisor(true);
+    try {
+      const res = await apiFetch('/supervisors', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ name: newSupervisorName.trim() })
+      });
+      const json = await res.json();
+      
+      if (res.ok && json.success) {
+        toast.success(json.message || 'Supervisor added successfully');
+        setSupervisorsList([...supervisorsList, json.data]);
+        setSupervisorName(json.data.name);
+        setErrors({...errors, supervisorName: null});
+        setShowSupervisorModal(false);
+        setNewSupervisorName('');
+      } else {
+        toast.error(json.detail || 'Failed to add supervisor');
+      }
+    } catch (error) {
+      console.error("Error adding supervisor:", error);
+      toast.error('Failed to add supervisor');
+    } finally {
+      setIsAddingSupervisor(false);
+    }
+  };
 
   const loadLaborEntry = async () => {
     setIsLoading(true);
@@ -91,7 +189,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
     const newId = employees.length ? Math.max(...employees.map(e => e.id)) + 1 : 1;
     setEmployees([...employees, {
       id: newId,
-      name: 'New Employee ' + newId,
+      name: '',
       workTypes: []
     }]);
     setExpandedRow(newId);
@@ -102,6 +200,52 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
     setEmployees(employees.filter(emp => emp.id !== id));
   };
 
+  const handleEmployeeNameChange = (empId, value) => {
+    if (value === '__add_new__') {
+      setAddingNewEmpRowId(empId);
+      setNewEmpName('');
+      return;
+    }
+    const updated = employees.map(emp => 
+      emp.id === empId ? { ...emp, name: value } : emp
+    );
+    setEmployees(updated);
+  };
+
+  const handleSaveNewEmployee = async (empId) => {
+    if (!newEmpName.trim()) {
+      toast.error('Employee name is required');
+      return;
+    }
+    setIsAddingEmployee(true);
+    try {
+      const res = await apiFetch('/employees', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newEmpName.trim() })
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        toast.success('Employee added successfully');
+        setEmployeeList([...employeeList, json.data]);
+        const updated = employees.map(emp => 
+          emp.id === empId ? { ...emp, name: json.data.name } : emp
+        );
+        setEmployees(updated);
+        setAddingNewEmpRowId(null);
+        setNewEmpName('');
+        setErrors({...errors, [`emp_${empId}_name`]: null});
+      } else {
+        toast.error(json.detail || 'Failed to add employee');
+      }
+    } catch (err) {
+      console.error('Error adding employee:', err);
+      toast.error('Failed to add employee');
+    } finally {
+      setIsAddingEmployee(false);
+    }
+  };
+
   const handleAddWorkType = (empId) => {
     setEmployees(employees.map(emp => {
       if (emp.id === empId) {
@@ -110,7 +254,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
           ...emp,
           workTypes: [...emp.workTypes, {
             id: newWtId,
-            type: 'Grinding',
+            type: workTypeList.length > 0 ? workTypeList[0].name : '',
             weight: 0,
             rate: 0
           }]
@@ -120,14 +264,6 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
     }));
   };
 
-  const handleEmployeeNameChange = (id, newName) => {
-    setEmployees(employees.map(emp => {
-      if (emp.id === id) {
-        return { ...emp, name: newName };
-      }
-      return emp;
-    }));
-  };
 
   const handleDeleteWorkType = (empId, wtId) => {
     setEmployees(employees.map(emp => {
@@ -142,20 +278,67 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
   };
 
   const handleWorkTypeChange = (empId, wtId, field, value) => {
+    if (field === 'type' && value === '__add_new__') {
+      setAddingNewWtId(`${empId}-${wtId}`);
+      setNewWtName('');
+      return;
+    }
+    
     setEmployees(employees.map(emp => {
       if (emp.id === empId) {
         return {
           ...emp,
-          workTypes: emp.workTypes.map(wt => {
-            if (wt.id === wtId) {
-              return { ...wt, [field]: value };
-            }
-            return wt;
-          })
+          workTypes: emp.workTypes.map(wt => 
+            wt.id === wtId ? { ...wt, [field]: value } : wt
+          )
         };
       }
       return emp;
     }));
+  };
+
+  const handleSaveNewWorkType = async (empId, wtId) => {
+    if (!newWtName.trim()) {
+      toast.error('Work type is required');
+      return;
+    }
+    setIsAddingWorkType(true);
+    try {
+      const res = await apiFetch('/worktypes', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: newWtName.trim() })
+      });
+      const json = await res.json();
+      if (res.ok && json.success) {
+        toast.success('Work type added successfully');
+        setWorkTypeList([...workTypeList, json.data]);
+        
+        // Update the work type for this row automatically
+        setEmployees(employees.map(emp => {
+          if (emp.id === empId) {
+            return {
+              ...emp,
+              workTypes: emp.workTypes.map(wt => 
+                wt.id === wtId ? { ...wt, type: json.data.name } : wt
+              )
+            };
+          }
+          return emp;
+        }));
+        
+        setAddingNewWtId(null);
+        setNewWtName('');
+        setErrors({...errors, [`wt_${wtId}_type`]: null});
+      } else {
+        toast.error(json.detail || 'Failed to add work type');
+      }
+    } catch (err) {
+      console.error('Error adding work type:', err);
+      toast.error('Failed to add work type');
+    } finally {
+      setIsAddingWorkType(false);
+    }
   };
 
   // --- Calculations ---
@@ -262,6 +445,19 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
 
   return (
     <div className="add-labor-container">
+      {/* Breadcrumbs */}
+      <div className="breadcrumbs">
+        <span className="breadcrumb-item active" onClick={onCancel}>
+          <Home size={16} /> Labor Management
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item active" onClick={onCancel}>
+          <ClipboardList size={16} /> Labor Entries
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item current">{isEditMode ? 'Edit Labor Entry' : 'Add Labor Entry'}</span>
+      </div>
+
       {/* Section 1: Entry Details */}
       <div className="form-section">
         <div className="section-header">
@@ -287,13 +483,26 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
           
           <div className="form-group">
             <label className="form-label">Supervisor Name <span className="required">*</span></label>
-            <input 
-              type="text" 
-              className={`form-control ${errors.supervisorName ? 'error-border' : ''}`}
-              placeholder="Enter Supervisor Name"
-              value={supervisorName}
-              onChange={(e) => { setSupervisorName(e.target.value); setErrors({...errors, supervisorName: null}); }}
-            />
+            <div style={{ display: 'flex', gap: '10px' }}>
+              <div className="form-control-select" style={{ flex: 1 }}>
+                <CustomSelect
+                  name="supervisorName"
+                  value={supervisorName}
+                  onChange={(e) => { setSupervisorName(e.target.value); setErrors({...errors, supervisorName: null}); }}
+                  options={supervisorsList.map(sup => ({ value: sup.name, label: sup.name }))}
+                  placeholder="Select Supervisor"
+                  error={!!errors.supervisorName}
+                />
+              </div>
+              <button 
+                type="button" 
+                className="btn-add-supervisor"
+                onClick={() => setShowSupervisorModal(true)}
+                title="Add New Supervisor"
+              >
+                <UserPlus size={18} />
+              </button>
+            </div>
             {errors.supervisorName && <span className="error-text">{errors.supervisorName}</span>}
           </div>
         </div>
@@ -335,15 +544,63 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                   <span className="row-index">{index + 1}.</span>
                   <ChevronRight size={16} className="row-chevron" />
                   <div className="row-emp-name" style={{ display: 'flex', flexDirection: 'column' }}>
-                    <input 
-                      type="text" 
-                      className={`form-control ${errors[`emp_${emp.id}_name`] ? 'error-border' : ''}`}
-                      style={{ padding: '0.35rem 0.75rem', width: '100%', maxWidth: '250px', fontWeight: '600', fontSize: '0.95rem' }}
-                      value={emp.name}
-                      onChange={(e) => { handleEmployeeNameChange(emp.id, e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
-                      onClick={(e) => e.stopPropagation()} 
-                      placeholder="Enter Employee Name"
-                    />
+                    {addingNewEmpRowId === emp.id ? (
+                      <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch', height: '100%' }}>
+                        <input 
+                          type="text" 
+                          className={`form-control ${errors[`emp_${emp.id}_name`] ? 'error-border' : ''}`}
+                          style={{ flex: 1, margin: 0 }}
+                          value={newEmpName}
+                          onChange={(e) => { setNewEmpName(e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
+                          onClick={(e) => e.stopPropagation()} 
+                          placeholder="Enter New Employee Name"
+                          autoFocus
+                        />
+                        <button 
+                          className="btn-primary" 
+                          style={{ padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'auto', margin: 0 }}
+                          onClick={(e) => { e.stopPropagation(); handleSaveNewEmployee(emp.id); }}
+                          disabled={isAddingEmployee}
+                        >
+                          {isAddingEmployee ? '...' : 'Save'}
+                        </button>
+                        <button 
+                          style={{ 
+                            padding: '0', 
+                            width: '44px', 
+                            display: 'flex', 
+                            alignItems: 'center', 
+                            justifyContent: 'center',
+                            backgroundColor: '#F1F5F9',
+                            color: '#64748B',
+                            border: 'none',
+                            borderRadius: '6px',
+                            cursor: 'pointer',
+                            margin: 0
+                          }}
+                          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#E2E8F0'; e.currentTarget.style.color = '#334155'; }}
+                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#F1F5F9'; e.currentTarget.style.color = '#64748B'; }}
+                          onClick={(e) => { e.stopPropagation(); setAddingNewEmpRowId(null); setNewEmpName(''); }}
+                          disabled={isAddingEmployee}
+                        >
+                          <X size={18} />
+                        </button>
+                      </div>
+                    ) : (
+                      <div className="form-control-select">
+                        <CustomSelect
+                          name={`emp_${emp.id}_name`}
+                          value={emp.name}
+                          onChange={(e) => { handleEmployeeNameChange(emp.id, e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
+                          options={[
+                            ...employeeList.map(e => ({ value: e.name, label: e.name })),
+                            { value: '__add_new__', label: '+ Add New Employee' }
+                          ]}
+                          placeholder="Select Employee Name"
+                          error={!!errors[`emp_${emp.id}_name`]}
+                        />
+                      </div>
+                    )}
                     {errors[`emp_${emp.id}_name`] && <span className="error-text" style={{marginTop: '2px'}}>{errors[`emp_${emp.id}_name`]}</span>}
                   </div>
                   
@@ -398,18 +655,61 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                                 <div className="drag-handle"><GripVertical size={16} /></div>
                               </td>
                               <td>
-                                <div className="form-control-select">
-                                  <select 
-                                    className="form-control wt-input-small" 
-                                    value={wt.type}
-                                    onChange={(e) => handleWorkTypeChange(emp.id, wt.id, 'type', e.target.value)}
-                                  >
-                                    <option value="Grinding">Grinding</option>
-                                    <option value="Kabadu">Kabadu</option>
-                                    <option value="Patakadku">Patakadku</option>
-                                  </select>
-                                  <ChevronDown size={14} />
-                                </div>
+                                {addingNewWtId === `${emp.id}-${wt.id}` ? (
+                                  <div style={{ display: 'flex', gap: '4px', alignItems: 'stretch', height: '100%' }}>
+                                    <input 
+                                      type="text" 
+                                      className={`form-control wt-input-small ${errors[`wt_${wt.id}_type`] ? 'error-border' : ''}`}
+                                      style={{ flex: 1, margin: 0, minWidth: '90px' }}
+                                      value={newWtName}
+                                      onChange={(e) => { setNewWtName(e.target.value); setErrors({...errors, [`wt_${wt.id}_type`]: null}); }}
+                                      placeholder="New Type"
+                                      autoFocus
+                                    />
+                                    <button 
+                                      className="btn-primary" 
+                                      style={{ padding: '0 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'auto', margin: 0, fontSize: '0.8rem', minWidth: '40px' }}
+                                      onClick={() => handleSaveNewWorkType(emp.id, wt.id)}
+                                      disabled={isAddingWorkType}
+                                    >
+                                      {isAddingWorkType ? '...' : 'Save'}
+                                    </button>
+                                    <button 
+                                      style={{ 
+                                        padding: '0', 
+                                        width: '28px', 
+                                        display: 'flex', 
+                                        alignItems: 'center', 
+                                        justifyContent: 'center',
+                                        backgroundColor: '#F1F5F9',
+                                        color: '#64748B',
+                                        border: 'none',
+                                        borderRadius: '6px',
+                                        cursor: 'pointer',
+                                        margin: 0
+                                      }}
+                                      onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#E2E8F0'; e.currentTarget.style.color = '#334155'; }}
+                                      onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#F1F5F9'; e.currentTarget.style.color = '#64748B'; }}
+                                      onClick={() => { setAddingNewWtId(null); setNewWtName(''); }}
+                                      disabled={isAddingWorkType}
+                                    >
+                                      <X size={14} />
+                                    </button>
+                                  </div>
+                                ) : (
+                                  <div className="form-control-select">
+                                    <CustomSelect
+                                      name="type"
+                                      value={wt.type}
+                                      onChange={(e) => handleWorkTypeChange(emp.id, wt.id, 'type', e.target.value)}
+                                      options={[
+                                        ...workTypeList.map(w => ({ value: w.name, label: w.name })),
+                                        { value: '__add_new__', label: '+ Add New Work Type' }
+                                      ]}
+                                      className="wt-input-small"
+                                    />
+                                  </div>
+                                )}
                               </td>
                               <td>
                                 <input 
@@ -486,16 +786,6 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
               />
               <div className="hint-text">Enter total deductions if any</div>
             </div>
-            
-            <div className="form-group">
-              <label className="form-label">Deduction Reason <span style={{fontWeight: 'normal', color: '#6B7280'}}>(Optional)</span></label>
-              <textarea 
-                className="form-control"
-                value={deductionReason}
-                onChange={(e) => setDeductionReason(e.target.value)}
-              ></textarea>
-              <div className="char-count">{deductionReason.length} / 200</div>
-            </div>
           </div>
           
           <div className="deductions-calc">
@@ -515,6 +805,16 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
             </div>
           </div>
         </div>
+
+        <div className="form-group" style={{marginTop: '1.5rem'}}>
+          <label className="form-label">Deduction Reason <span style={{fontWeight: 'normal', color: '#6B7280'}}>(Optional)</span></label>
+          <textarea 
+            className="form-control"
+            value={deductionReason}
+            onChange={(e) => setDeductionReason(e.target.value)}
+          ></textarea>
+          <div className="char-count">{deductionReason.length} / 200</div>
+        </div>
       </div>
 
       {/* Footer Actions */}
@@ -525,6 +825,41 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
           <Save size={18} /> {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Labor Entry' : 'Save Labor Entry')}
         </button>
       </div>
+
+      {/* Add Supervisor Modal */}
+      {showSupervisorModal && (
+        <div className="modal-overlay">
+          <div className="modal-content supervisor-modal">
+            <div className="modal-header">
+              <h3>Add New Supervisor</h3>
+              <button className="close-btn" onClick={() => setShowSupervisorModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <form onSubmit={handleAddNewSupervisor}>
+              <div className="modal-body">
+                <div className="form-group">
+                  <label className="form-label">Supervisor Name <span className="required">*</span></label>
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Enter full name"
+                    value={newSupervisorName}
+                    onChange={(e) => setNewSupervisorName(e.target.value)}
+                    autoFocus
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button type="button" className="btn-secondary" onClick={() => setShowSupervisorModal(false)}>Cancel</button>
+                <button type="submit" className="btn-primary" disabled={isAddingSupervisor}>
+                  {isAddingSupervisor ? 'Saving...' : 'Save Supervisor'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

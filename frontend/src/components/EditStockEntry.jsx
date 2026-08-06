@@ -12,12 +12,17 @@ import {
   X, 
   Save,
   ChevronDown,
+  ChevronRight,
   CircleDot,
-  Circle
+  Circle,
+  Home,
+  ClipboardList
 } from 'lucide-react';
 import Loader from './Loader';
 import { apiFetch } from '../utils/api';
+import CustomSelect from './common/CustomSelect';
 import './EditStockEntry.css';
+
 
 const EditStockEntry = ({ stock, onCancel }) => {
   const [formData, setFormData] = useState({
@@ -126,6 +131,18 @@ const EditStockEntry = ({ stock, onCancel }) => {
 
   return (
     <div className="edit-stock-container">
+      <div className="breadcrumbs">
+        <span className="breadcrumb-item active" onClick={onCancel} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Home size={15} /> Stock Management
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item active" onClick={onCancel} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <ClipboardList size={15} /> Stock List
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item current">Edit Stock Entry</span>
+      </div>
+
       {/* Material Profile Section */}
       <div className="stock-section-card">
         <div className="section-header-wrapper">
@@ -263,19 +280,8 @@ const EditStockEntry = ({ stock, onCancel }) => {
                     className="form-input quantity-input"
                     placeholder="Enter quantity"
                   />
-                  <div className="unit-select-wrapper">
-                    <select 
-                      name="unit" 
-                      value={formData.unit} 
-                      onChange={handleChange}
-                      className="unit-select"
-                    >
-                      <option value="kg">kg</option>
-                      <option value="bag">bag</option>
-                      <option value="pcs">pcs</option>
-                      <option value="cft">cft</option>
-                    </select>
-                    <ChevronDown size={14} className="unit-chevron" />
+                  <div className="unit-select-wrapper" style={{ padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#475569', fontWeight: '500' }}>
+                    kg
                   </div>
                 </div>
                 {errors.quantity && <div className="field-error">{errors.quantity}</div>}

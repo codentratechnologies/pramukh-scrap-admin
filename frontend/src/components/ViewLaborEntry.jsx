@@ -9,7 +9,8 @@ import {
   MessageSquare,
   FileText,
   Wallet,
-  Percent
+  Percent,
+  ClipboardList
 } from 'lucide-react';
 import Loader from './Loader';
 import { apiFetch } from '../utils/api';
@@ -88,28 +89,17 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
 
   return (
     <div className="view-labor-container">
-      {/* Page Header */}
-      <div className="page-header" style={{ display: 'flex', alignItems: 'center', gap: '1.5rem', marginBottom: '1.5rem' }}>
-        <button 
-          className="btn-back" 
-          onClick={onBack}
-          style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            gap: '0.5rem', 
-            padding: '0.5rem 1rem', 
-            backgroundColor: 'var(--white)', 
-            border: '1px solid var(--border-light)', 
-            borderRadius: '6px', 
-            color: 'var(--blue-dark)', 
-            fontWeight: '500', 
-            cursor: 'pointer',
-            boxShadow: '0 1px 2px rgba(0,0,0,0.05)'
-          }}
-        >
-          <ChevronRight size={16} style={{ transform: 'rotate(180deg)' }} /> Back to List
-        </button>
-
+      {/* Page Header - Breadcrumbs */}
+      <div className="breadcrumbs" style={{ marginBottom: '1.5rem' }}>
+        <span className="breadcrumb-item active" onClick={onBack}>
+          <Home size={16} /> Labor Management
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item active" onClick={onBack}>
+          <ClipboardList size={16} /> Labor Entries
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item current">View Labor Entry</span>
       </div>
 
       {/* Top Info Cards */}
@@ -156,9 +146,9 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
       </div>
 
       {/* Details Table */}
-      <div className="details-section">
+      <div className="details-section" style={{ height: 'max-content', minHeight: '0', flex: 'none' }}>
         <div className="section-header">Employee & Work Details</div>
-        <div className="employee-details-list">
+        <div className="employee-details-list" style={{ minHeight: '0', height: 'auto' }}>
           {entryData.employees.map((emp, index) => (
             <div className="employee-detail-card" key={emp.id}>
               <div className="employee-card-header">

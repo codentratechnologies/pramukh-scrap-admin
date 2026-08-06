@@ -12,7 +12,8 @@ import {
   ChevronRight,
   ChevronsLeft,
   ChevronsRight,
-  ChevronDown
+  ChevronDown,
+  Home
 } from 'lucide-react';
 import Loader from './Loader';
 import * as XLSX from 'xlsx';
@@ -100,10 +101,16 @@ const ViewStockEntry = ({ stock, onBack }) => {
 
   return (
     <div className="view-stock-container">
-      <div className="view-stock-top-actions">
-        <button className="btn-back" onClick={onBack}>
-          <ArrowLeft size={18} /> Back to Stock List
-        </button>
+      <div className="breadcrumbs">
+        <span className="breadcrumb-item active" onClick={onBack} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <Home size={15} /> Stock Management
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item active" onClick={onBack} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
+          <ClipboardList size={15} /> Stock List
+        </span>
+        <span className="breadcrumb-separator"><ChevronRight size={14} /></span>
+        <span className="breadcrumb-item current">View Stock Entry</span>
       </div>
 
       {/* Material Profile Section */}
@@ -138,7 +145,7 @@ const ViewStockEntry = ({ stock, onBack }) => {
             {/* Current Stock */}
             <div className="stat-info-card" style={{ gridColumn: 'span 2' }}>
               <div className="stat-icon-circle green-light-bg">
-                <Box size={20} className="green-icon" />
+                <Box size={14} className="green-icon" />
               </div>
               <div className="stat-text-area">
                 <div className="stat-label">Current Stock</div>
@@ -149,22 +156,22 @@ const ViewStockEntry = ({ stock, onBack }) => {
             {/* Created Date */}
             <div className="stat-info-card">
               <div className="stat-icon-circle gray-light-bg">
-                <Calendar size={20} className="text-muted" />
+                <Calendar size={14} className="text-muted" />
               </div>
               <div className="stat-text-area">
                 <div className="stat-label">Created Date</div>
-                <div className="stat-value font-medium">{materialData.createdDate}</div>
+                <div className="stat-value">{materialData.createdDate}</div>
               </div>
             </div>
 
             {/* Last Updated */}
             <div className="stat-info-card">
               <div className="stat-icon-circle gray-light-bg">
-                <Clock size={20} className="text-muted" />
+                <Clock size={14} className="text-muted" />
               </div>
               <div className="stat-text-area">
                 <div className="stat-label">Last Updated</div>
-                <div className="stat-value font-medium">{materialData.lastUpdated}</div>
+                <div className="stat-value">{materialData.lastUpdated}</div>
               </div>
             </div>
           </div>

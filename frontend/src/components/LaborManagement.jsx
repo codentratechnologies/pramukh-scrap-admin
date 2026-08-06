@@ -14,14 +14,15 @@ import {
   AlertTriangle,
   X,
   Download,
-  ArrowUpDown,
   RefreshCw,
-  MoreVertical
+  MoreVertical,
+  ChevronsUpDown,
+  RotateCcw
 } from 'lucide-react';
 import Loader from './Loader';
 import { apiFetch } from '../utils/api';
-import DatePicker from 'react-datepicker';
-import 'react-datepicker/dist/react-datepicker.css';
+import CustomSelect from './common/CustomSelect';
+import CustomDatePicker from './common/CustomDatePicker';
 import './LaborManagement.css';
 
 const initialLaborData = [
@@ -171,6 +172,36 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
     if (currentPage < totalPages) setCurrentPage(currentPage + 1);
   };
 
+  const renderPagination = () => {
+    let pages = [];
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i);
+    } else {
+      if (currentPage <= 3) {
+        pages = [1, 2, 3, 4, '...', totalPages];
+      } else if (currentPage >= totalPages - 2) {
+        pages = [1, '...', totalPages - 3, totalPages - 2, totalPages - 1, totalPages];
+      } else {
+        pages = [1, '...', currentPage - 1, currentPage, currentPage + 1, '...', totalPages];
+      }
+    }
+
+    return pages.map((page, index) => {
+      if (page === '...') {
+        return <span key={`dots-${index}`} className="page-dots">...</span>;
+      }
+      return (
+        <button 
+          key={page} 
+          className={`page-btn ${currentPage === page ? 'active' : ''}`}
+          onClick={() => setCurrentPage(page)}
+        >
+          {page}
+        </button>
+      );
+    });
+  };
+
   return (
     <div className="lm-container">
       <div className="lm-card">
@@ -198,51 +229,46 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           />
         </div>
         
-        <div className="date-range-box">
-          <Calendar size={18} className="date-icon" />
-          <DatePicker
-            selected={fromDate ? new Date(fromDate) : null}
-            onChange={(date) => { setFromDate(date ? date.toISOString() : ''); setCurrentPage(1); }}
-            placeholderText="From Date"
-            className="date-input from-date"
-            dateFormat="dd MMM yyyy"
+        <div className="date-range-wrapper">
+          <CustomDatePicker
+            value={fromDate}
+            onChange={(val) => { setFromDate(val); setCurrentPage(1); }}
+            placeholder="From Date"
+            label="FROM"
           />
-          <span className="date-separator">→</span>
-          <DatePicker
-            selected={toDate ? new Date(toDate) : null}
-            onChange={(date) => { setToDate(date ? date.toISOString() : ''); setCurrentPage(1); }}
-            placeholderText="To Date"
-            className="date-input to-date"
-            dateFormat="dd MMM yyyy"
+          <span className="date-range-arrow">→</span>
+          <CustomDatePicker
+            value={toDate}
+            onChange={(val) => { setToDate(val); setCurrentPage(1); }}
+            placeholder="To Date"
+            label="TO"
           />
         </div>
 
         <div className="dropdown-box filter-dropdown">
-          <select 
-            className="filter-select"
+          <CustomSelect
+            name="supervisorFilter"
             value={supervisorFilter}
             onChange={(e) => { setSupervisorFilter(e.target.value); setCurrentPage(1); }}
-          >
-            <option value="">All Supervisors</option>
-            {uniqueSupervisors.map(sup => (
-              <option key={sup} value={sup}>{sup}</option>
-            ))}
-          </select>
-          <ChevronDown size={16} className="select-icon" />
+            options={[
+              { value: "", label: "All Supervisors" },
+              ...uniqueSupervisors.map(sup => ({ value: sup, label: sup }))
+            ]}
+            className="filter-select-mode"
+          />
         </div>
 
         <div className="dropdown-box filter-dropdown">
-          <select 
-            className="filter-select"
+          <CustomSelect
+            name="workTypeFilter"
             value={workTypeFilter}
             onChange={(e) => { setWorkTypeFilter(e.target.value); setCurrentPage(1); }}
-          >
-            <option value="">All Work Types</option>
-            {uniqueWorkTypes.map(wt => (
-              <option key={wt} value={wt}>{wt}</option>
-            ))}
-          </select>
-          <ChevronDown size={16} className="select-icon" />
+            options={[
+              { value: "", label: "All Work Types" },
+              ...uniqueWorkTypes.map(wt => ({ value: wt, label: wt }))
+            ]}
+            className="filter-select-mode"
+          />
         </div>
 
         <button 
@@ -256,7 +282,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             setCurrentPage(1);
           }}
         >
-          <RefreshCw size={16} /> Clear Filters
+          <RotateCcw size={16} /> Clear Filters
         </button>
       </div>
 
@@ -265,13 +291,13 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           <thead>
             <tr>
               <th className="text-center">#</th>
-              <th>Date <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Supervisor <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Work Types <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Total Weight <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Total Amount <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Deductions <ArrowUpDown size={14} className="sort-icon" /></th>
-              <th>Payable Amount <ArrowUpDown size={14} className="sort-icon" /></th>
+              <th>Date <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Supervisor <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Work Types <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Total Weight <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Total Amount <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Deductions <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Payable Amount <ChevronsUpDown size={14} className="sort-icon" /></th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -303,7 +329,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                         <div className="actions-container" style={{ justifyContent: 'center' }}>
                           <button className="action-btn view-btn" title="View" onClick={() => onViewEntry(row.id)}><Eye size={16} /></button>
                           <button className="action-btn edit-btn" title="Edit" onClick={() => onEditEntry(row.id)}><Edit size={16} /></button>
-                          <button className="action-btn" title="More Options" onClick={() => handleDeleteClick(row.id)}><MoreVertical size={16} /></button>
+                          <button className="action-btn delete-btn" title="Delete" onClick={() => handleDeleteClick(row.id)}><Trash2 size={16} /></button>
                         </div>
                       </td>
                     </tr>
@@ -329,15 +355,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             <ChevronLeft size={16} />
           </button>
           <div className="page-numbers">
-            {Array.from({ length: totalPages }).map((_, i) => (
-              <button 
-                key={i} 
-                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
+            {renderPagination()}
           </div>
           <button className="page-btn" disabled={currentPage === totalPages || totalPages === 0} onClick={handleNextPage}>
             <ChevronRight size={16} />

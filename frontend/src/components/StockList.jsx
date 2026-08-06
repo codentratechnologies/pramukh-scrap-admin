@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import toast from 'react-hot-toast';
 import { 
   Plus, 
@@ -15,14 +15,28 @@ import {
 } from 'lucide-react';
 import Loader from './Loader';
 import { apiFetch } from '../utils/api';
+import CustomSelect from './common/CustomSelect';
 import './StockList.css';
 
 const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
+  const [showFilterDropdown, setShowFilterDropdown] = useState(false);
   const [stocks, setStocks] = useState([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const filterRef = useRef(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (filterRef.current && !filterRef.current.contains(event.target)) {
+        setShowFilterDropdown(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
 
   useEffect(() => {
     fetchStocks();
@@ -61,11 +75,21 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
     }
   };
 
+  const getStockStatus = (quantity) => {
+    const qty = Number(quantity);
+    if (qty === 0) return 'Out of Stock';
+    if (qty < 150) return 'Low Stock';
+    return 'Available';
+  };
+
   const filteredStocks = stocks.filter(stock => {
     const term = searchTerm.toLowerCase();
+    const status = getStockStatus(stock.quantity);
+    
+    if (statusFilter && status !== statusFilter) return false;
+    
     if (!term) return true;
     
-    const status = Number(stock.quantity) > 10 ? 'Healthy' : Number(stock.quantity) > 0 ? 'Low Stock' : 'Out of Stock';
     const quantityStr = `${stock.quantity} ${stock.unit}`.toLowerCase();
     
     return (
@@ -91,7 +115,7 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
 
   const getStatusBadge = (status) => {
     let className = 'status-badge ';
-    if (status === 'Healthy') className += 'status-healthy';
+    if (status === 'Healthy' || status === 'Available') className += 'status-healthy';
     else if (status === 'Low Stock') className += 'status-low';
     else if (status === 'Out of Stock') className += 'status-out';
 
@@ -121,13 +145,44 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           <Search size={18} className="search-icon" />
           <input 
             type="text" 
-            placeholder="Search material, quantity, or status..." 
+            placeholder="Search by material name..." 
             value={searchTerm}
             onChange={(e) => {
               setSearchTerm(e.target.value);
               setCurrentPage(1);
             }}
           />
+        </div>
+        <div className="filter-actions" style={{ position: 'relative' }} ref={filterRef}>
+          <button className="btn-filter" onClick={() => setShowFilterDropdown(!showFilterDropdown)}>
+            <Filter size={16} /> Filter
+          </button>
+          
+          {showFilterDropdown && (
+            <div style={{ position: 'absolute', top: '110%', right: '90px', backgroundColor: '#fff', border: '1px solid #e2e8f0', borderRadius: '8px', padding: '1rem', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1)', zIndex: 50, width: '220px' }}>
+              <div style={{ marginBottom: '0.75rem', fontWeight: '600', fontSize: '0.9rem', color: '#1e293b' }}>Filter by Status</div>
+              <CustomSelect
+                name="statusFilter"
+                value={statusFilter}
+                onChange={(e) => { setStatusFilter(e.target.value); setCurrentPage(1); }}
+                options={[
+                  { value: "", label: "All Statuses" },
+                  { value: "Available", label: "Available" },
+                  { value: "Low Stock", label: "Low Stock" },
+                  { value: "Out of Stock", label: "Out of Stock" }
+                ]}
+              />
+            </div>
+          )}
+
+          <button className="btn-reset" onClick={() => {
+            setSearchTerm('');
+            setStatusFilter('');
+            setShowFilterDropdown(false);
+            setCurrentPage(1);
+          }}>
+            <RotateCcw size={16} /> Reset
+          </button>
         </div>
       </div>
 
@@ -136,21 +191,9 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           <thead>
             <tr>
               <th className="text-center">#</th>
-              <th>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Material Name <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
-                </div>
-              </th>
-              <th>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Current Stock <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
-                </div>
-              </th>
-              <th>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  Stock Status <ChevronsUpDown size={14} className="sort-icon" style={{ margin: 0 }} />
-                </div>
-              </th>
+              <th>Material Name</th>
+              <th className="text-center">Current Stock</th>
+              <th className="text-center">Stock Status</th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
@@ -166,8 +209,8 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                     <tr key={item.id}>
                       <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}.</td>
                       <td className="fw-500">{item.materialName}</td>
-                      <td>{item.quantity} {item.unit}</td>
-                      <td>{getStatusBadge(Number(item.quantity) > 10 ? 'Healthy' : Number(item.quantity) > 0 ? 'Low Stock' : 'Out of Stock')}</td>
+                      <td className="text-center">{item.quantity} {item.unit}</td>
+                      <td className="text-center">{getStatusBadge(getStockStatus(item.quantity))}</td>
                       <td className="text-center">
                         <div className="actions-container">
                           <button className="action-btn view-btn" title="View Details" onClick={() => onViewEntry(item)}>
@@ -194,27 +237,27 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
             )}
           </tbody>
         </table>
+      </div>
 
-        {/* Pagination inside table container */}
-        <div className="pagination-section" style={{ padding: '1rem 1.25rem', borderTop: '1px solid var(--border-light)' }}>
-          <div className="pagination-info">
-            Showing {filteredStocks.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredStocks.length)} of {filteredStocks.length} entries
-          </div>
-          <div className="pagination-controls">
-            <button className="page-btn" onClick={handlePrevPage} disabled={currentPage === 1}><ChevronLeft size={16} /></button>
-            
-            {[...Array(totalPages)].map((_, i) => (
-              <button 
-                key={i+1} 
-                className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
-                onClick={() => setCurrentPage(i + 1)}
-              >
-                {i + 1}
-              </button>
-            ))}
-            
-            <button className="page-btn" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}><ChevronRight size={16} /></button>
-          </div>
+      {/* Pagination outside table container */}
+      <div className="pagination-section" style={{ padding: '1rem 0' }}>
+        <div className="pagination-info">
+          Showing {filteredStocks.length === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1} to {Math.min(currentPage * itemsPerPage, filteredStocks.length)} of {filteredStocks.length} entries
+        </div>
+        <div className="pagination-controls">
+          <button className="page-btn" onClick={handlePrevPage} disabled={currentPage === 1}><ChevronLeft size={16} /></button>
+          
+          {[...Array(totalPages)].map((_, i) => (
+            <button 
+              key={i+1} 
+              className={`page-btn ${currentPage === i + 1 ? 'active' : ''}`}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </button>
+          ))}
+          
+          <button className="page-btn" onClick={handleNextPage} disabled={currentPage === totalPages || totalPages === 0}><ChevronRight size={16} /></button>
         </div>
       </div>
       </div>

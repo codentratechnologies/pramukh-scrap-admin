@@ -9,6 +9,34 @@
   width: 100%;
 }
 
+.breadcrumbs {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.breadcrumbs span {
+  color: #64748B;
+}
+
+.breadcrumbs .breadcrumb-active {
+  color: var(--blue-dark);
+  font-weight: 600;
+}
+
+.add-stock-card {
+  background-color: var(--white);
+  border-radius: 12px;
+  border: 1px solid var(--border-light);
+  padding: 2.5rem;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
 /* Header */
 .add-stock-header {
   display: flex;
@@ -85,9 +113,9 @@
 
 .form-divider {
   height: 1px;
-  background-color: var(--border-light);
-  border-style: dashed;
-  margin: 1.5rem 0;
+  background-color: transparent;
+  border-bottom: 1px dashed #E2E8F0;
+  margin: 1.75rem 0;
 }
 
 .row-info {
@@ -181,18 +209,7 @@
   margin-top: 0.4rem;
 }
 
-/* Date Input */
-.date-input-wrapper {
-  position: relative;
-  display: flex;
-  align-items: center;
-  max-width: 300px;
-}
 
-.date-input {
-  padding-left: 2.5rem !important;
-  text-align: left !important;
-}
 
 /* Custom Select */
 .custom-select-wrapper {
@@ -302,6 +319,14 @@
 /* Date Input */
 .date-input-wrapper {
   position: relative;
+  width: 100%;
+}
+
+.date-input-wrapper .react-datepicker-wrapper,
+.date-input-wrapper .react-datepicker__input-container {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 .date-input-icon {
@@ -315,7 +340,9 @@
 }
 
 .date-input {
-  padding-left: 2.75rem;
+  width: 100% !important;
+  height: 42px;
+  padding: 0.75rem 1rem 0.75rem 2.75rem !important;
 }
 .date-input::-webkit-calendar-picker-indicator {
   opacity: 0; /* hide default calendar icon but keep clickable area */
