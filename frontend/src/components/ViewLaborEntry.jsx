@@ -151,10 +151,22 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
         <div className="employee-details-list" style={{ minHeight: '0', height: 'auto' }}>
           {entryData.employees.map((emp, index) => (
             <div className="employee-detail-card" key={emp.id}>
-              <div className="employee-card-header">
-                <div className="emp-info">
-                  <span className="emp-index">#{index + 1}</span>
-                  <span className="emp-name fw-600">{emp.name}</span>
+              <div 
+                className="employee-card-header" 
+                onClick={() => toggleRow(emp.id)}
+                style={{ cursor: 'pointer' }}
+              >
+                <div className="emp-info" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                    <span className="emp-index">#{index + 1}</span>
+                    <span className="emp-name fw-600">{emp.name}</span>
+                  </div>
+                  <button 
+                    className={`expand-icon-btn ${expandedRow === emp.id ? 'expanded' : ''}`}
+                    style={{ margin: 0, padding: '4px', minWidth: 'auto', minHeight: 'auto' }}
+                  >
+                    <ChevronDown size={20} />
+                  </button>
                 </div>
                 <div className="emp-totals">
                   <div className="emp-total-item">
@@ -165,19 +177,13 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
                     <span className="label">Total Amount:</span>
                     <span className="value text-green fw-600">₹ {emp.totalAmount}</span>
                   </div>
-                  <button 
-                    className={`expand-icon-btn ${expandedRow === emp.id ? 'expanded' : ''}`}
-                    onClick={() => toggleRow(emp.id)}
-                    style={{ marginLeft: '1rem' }}
-                  >
-                    <ChevronDown size={20} />
-                  </button>
                 </div>
               </div>
               
               {expandedRow === emp.id && (
                 <div className="employee-card-body">
                   {emp.workTypes && emp.workTypes.length > 0 ? (
+                    <div style={{ overflowX: 'auto', width: '100%', WebkitOverflowScrolling: 'touch' }}>
                     <table className="nested-table">
                       <thead>
                         <tr>
@@ -198,6 +204,7 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
                         ))}
                       </tbody>
                     </table>
+                    </div>
                   ) : (
                     <div className="no-work-data">No work details recorded for this employee.</div>
                   )}

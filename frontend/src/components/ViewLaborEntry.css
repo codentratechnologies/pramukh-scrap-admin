@@ -1,28 +1,32 @@
-/* ViewLaborEntry.css */
+/* ========================================================
+   VIEW LABOR ENTRY (Mobile First)
+   ======================================================== */
 .view-labor-container {
-  padding: 1.5rem 2rem;
+  padding: var(--space-16);
   background-color: var(--bg-main);
   min-height: 100vh;
+  width: 100%;
 }
 
 /* Breadcrumbs */
 .breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
   color: var(--text-muted);
-  font-size: 0.9rem;
-  margin-bottom: 1.5rem;
+  font-size: clamp(13px, 1vw, 14px);
+  margin-bottom: var(--space-20);
+  flex-wrap: wrap;
 }
 
 .breadcrumb-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
 }
 
 .breadcrumb-item.active {
-  color: var(--green-primary);
+  color: #22C55E;
   cursor: pointer;
 }
 
@@ -38,11 +42,11 @@
 /* Info Cards Row (Top) */
 .info-cards-row {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
-  margin-bottom: 2rem;
+  grid-template-columns: 1fr; /* Mobile: 1 col */
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
   background-color: var(--white);
-  padding: 1.5rem;
+  padding: var(--space-16);
   border-radius: 12px;
   border: 1px solid var(--border-light);
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
@@ -51,13 +55,14 @@
 .info-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 0 1rem;
-  border-right: 1px solid var(--border-light);
+  gap: var(--space-16);
+  padding: var(--space-16) 0;
+  border-bottom: 1px solid var(--border-light);
+  border-right: none;
 }
 
 .info-card:last-child {
-  border-right: none;
+  border-bottom: none;
 }
 
 .info-icon-box {
@@ -81,13 +86,13 @@
 }
 
 .info-label {
-  font-size: 0.8rem;
+  font-size: clamp(12px, 1vw, 13px);
   color: var(--text-muted);
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .info-value {
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--blue-dark);
 }
@@ -98,16 +103,16 @@
   border-radius: 12px;
   border: 1px solid var(--border-light);
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-24);
   overflow: hidden;
   height: max-content;
   flex-shrink: 0;
 }
 
 .section-header {
-  padding: 1.25rem 1.5rem;
+  padding: var(--space-16) var(--space-20);
   border-bottom: 1px solid var(--border-light);
-  font-size: 1.1rem;
+  font-size: clamp(16px, 1.5vw, 18px);
   font-weight: 600;
   color: var(--blue-dark);
 }
@@ -115,8 +120,8 @@
 .employee-details-list {
   display: flex;
   flex-direction: column;
-  padding: 1rem;
-  gap: 1rem;
+  padding: var(--space-16);
+  gap: var(--space-16);
 }
 
 .employee-detail-card {
@@ -124,15 +129,18 @@
   border-radius: 8px;
   background-color: #FAFAFA;
   overflow: hidden;
+  min-width: 0;
 }
 
 .employee-card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1rem 1.5rem;
+  flex-direction: column; /* Stacked on mobile */
+  justify-content: flex-start;
+  align-items: stretch;
+  padding: var(--space-16);
   background-color: var(--white);
   border-bottom: 1px solid transparent;
+  gap: var(--space-12);
 }
 
 .employee-detail-card:has(.employee-card-body) .employee-card-header {
@@ -142,53 +150,57 @@
 .emp-info {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-12);
 }
 
 .emp-index {
   color: var(--text-muted);
   font-weight: 500;
-  font-size: 0.9rem;
+  font-size: clamp(13px, 1vw, 14px);
 }
 
 .emp-name {
-  font-size: 1.05rem;
+  font-size: clamp(15px, 1.5vw, 16px);
   color: var(--blue-dark);
+  font-weight: 600;
 }
 
 .emp-totals {
   display: flex;
+  flex-wrap: wrap; /* Wrap totals on mobile */
   align-items: center;
-  gap: 2rem;
+  gap: var(--space-16);
 }
 
 .emp-total-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
 }
 
 .emp-total-item .label {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: clamp(12px, 1vw, 13px);
 }
 
 .emp-total-item .value {
   color: var(--blue-dark);
   font-weight: 500;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
 }
 
 .employee-card-body {
   padding: 0;
   background-color: var(--white);
+  overflow-x: auto; /* Ensure tables scroll horizontally on mobile */
+  -webkit-overflow-scrolling: touch;
 }
 
 .no-work-data {
-  padding: 1.5rem;
+  padding: var(--space-24);
   text-align: center;
   color: var(--text-muted);
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
 }
 
 .expand-icon-btn {
@@ -200,8 +212,22 @@
   align-items: center;
   justify-content: center;
   transition: transform 0.2s;
-  padding: 0.5rem;
+  padding: var(--space-8);
   border-radius: 50%;
+  min-width: 44px; /* Touch target */
+  min-height: 44px;
+  align-self: flex-end; /* Align right on mobile */
+  margin-top: -44px; /* overlap with top if stacked, or adjust via flex */
+}
+
+.employee-card-header .expand-icon-btn {
+  position: absolute;
+  right: var(--space-16);
+  top: var(--space-16);
+}
+
+.employee-card-header {
+  position: relative; /* Context for absolute positioning of expand button on mobile */
 }
 
 .expand-icon-btn:hover {
@@ -228,11 +254,12 @@
   background-color: var(--white);
   border: none;
   table-layout: fixed;
+  min-width: 600px; /* Force scroll on small screens */
 }
 
 .nested-table th {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.85rem;
+  padding: 12px 16px;
+  font-size: 13px;
   color: var(--text-muted);
   background-color: #F8FAFC;
   border-bottom: 1px solid var(--border-light);
@@ -240,8 +267,8 @@
 }
 
 .nested-table td {
-  padding: 0.75rem 1.5rem;
-  font-size: 0.9rem;
+  padding: 12px 16px;
+  font-size: clamp(13px, 1vw, 14px);
   color: var(--blue-dark);
   border-bottom: 1px solid var(--border-light);
 }
@@ -256,27 +283,27 @@
   border-radius: 12px;
   border: 1px solid var(--border-light);
   box-shadow: 0 2px 10px rgba(0,0,0,0.02);
-  padding: 1.5rem;
+  padding: var(--space-20);
 }
 
 .summary-title {
-  font-size: 1.1rem;
+  font-size: clamp(16px, 1.5vw, 18px);
   font-weight: 600;
   color: var(--blue-dark);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-20);
 }
 
 .summary-cards {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1.5rem;
+  grid-template-columns: 1fr; /* Mobile: 1 col */
+  gap: var(--space-16);
 }
 
 .summary-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
+  gap: var(--space-16);
+  padding: var(--space-20);
   border-radius: 12px;
   border: 1px solid var(--border-light);
   background-color: var(--white);
@@ -302,40 +329,65 @@
 }
 
 .summary-label {
-  font-size: 0.85rem;
+  font-size: clamp(12px, 1vw, 13px);
   color: var(--text-muted);
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .summary-value {
-  font-size: 1.25rem;
+  font-size: clamp(18px, 1.5vw, 20px);
   font-weight: 700;
   color: var(--blue-dark);
 }
 
-@media (max-width: 1024px) {
+/* ========================================================
+   BREAKPOINTS (Min-Width)
+   ======================================================== */
+
+/* md: 768px */
+@media (min-width: 768px) {
   .info-cards-row {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .info-card {
+    border-right: 1px solid var(--border-light);
+    border-bottom: none;
+    padding: 0 var(--space-16);
   }
   .info-card:nth-child(2) {
     border-right: none;
   }
+  .info-card:nth-child(4) {
+    border-right: none;
+  }
+
+  .employee-card-header {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .employee-card-header .expand-icon-btn {
+    position: static;
+  }
+  
+  .summary-cards {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
-@media (max-width: 768px) {
+/* lg: 1024px */
+@media (min-width: 1024px) {
+  .view-labor-container {
+    padding: var(--space-32);
+  }
   .info-cards-row {
-    grid-template-columns: 1fr;
-    padding: 1rem;
+    grid-template-columns: repeat(4, 1fr);
+    padding: var(--space-24);
   }
   .info-card {
-    border-right: none;
-    border-bottom: 1px solid var(--border-light);
-    padding: 1rem 0;
+    border-right: 1px solid var(--border-light) !important;
   }
   .info-card:last-child {
-    border-bottom: none;
-  }
-  .summary-cards {
-    grid-template-columns: 1fr;
+    border-right: none !important;
   }
 }

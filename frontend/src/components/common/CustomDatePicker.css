@@ -1,23 +1,25 @@
-/* CustomDatePicker.css */
+/* CustomDatePicker.css - Mobile First */
 
 .cdp-wrapper {
   position: relative;
   display: inline-block;
+  width: 100%; /* Mobile first: full width by default unless constrained */
 }
 
 /* Trigger Button */
 .cdp-trigger {
   display: flex;
   align-items: center;
-  gap: 8px;
-  background: #ffffff;
-  border: 1px solid #E2E8F0;
+  gap: var(--space-8);
+  background: var(--white);
+  border: 1px solid var(--border-light);
   border-radius: 8px;
-  height: 44px;
+  min-height: 44px; /* Touch target */
   padding: 0 12px;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
   min-width: 148px;
+  width: 100%;
   box-sizing: border-box;
   user-select: none;
 }
@@ -56,7 +58,7 @@
 }
 
 .cdp-label {
-  font-size: 0.64rem;
+  font-size: 10px;
   font-weight: 700;
   color: #9CA3AF;
   text-transform: uppercase;
@@ -69,7 +71,7 @@
 }
 
 .cdp-display {
-  font-size: 0.82rem;
+  font-size: clamp(13px, 1vw, 14px);
   font-weight: 500;
   color: #1E293B;
   line-height: 1.2;
@@ -90,8 +92,8 @@
   background: #F1F5F9;
   border: none;
   border-radius: 50%;
-  width: 18px;
-  height: 18px;
+  width: 24px; /* Touch friendly */
+  height: 24px;
   cursor: pointer;
   color: #64748B;
   flex-shrink: 0;
@@ -115,7 +117,8 @@
   border-radius: 12px;
   box-shadow: 0 20px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.08);
   padding: 16px;
-  width: 280px;
+  width: 280px; /* Small enough for 320px screens */
+  max-width: calc(100vw - 32px); /* Avoid overflow on tiny screens */
   animation: cdp-fadeIn 0.15s ease;
 }
 
@@ -133,7 +136,7 @@
 }
 
 .cdp-month-year {
-  font-size: 0.92rem;
+  font-size: 14px;
   font-weight: 700;
   color: #1E293B;
   letter-spacing: -0.01em;
@@ -143,8 +146,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 28px;
-  height: 28px;
+  width: 32px; /* Touch target */
+  height: 32px;
   border: 1px solid #E2E8F0;
   border-radius: 6px;
   background: #ffffff;
@@ -169,7 +172,7 @@
 
 .cdp-day-name {
   text-align: center;
-  font-size: 0.7rem;
+  font-size: 11px;
   font-weight: 700;
   color: #94A3B8;
   text-transform: uppercase;
@@ -193,13 +196,14 @@
   border: none;
   background: transparent;
   border-radius: 7px;
-  font-size: 0.82rem;
+  font-size: 13px;
   font-weight: 500;
   color: #1E293B;
   cursor: pointer;
   transition: background 0.12s, color 0.12s;
   padding: 0;
   font-family: inherit;
+  min-height: 32px;
 }
 
 .cdp-cell:hover:not(.cdp-cell--other):not(.cdp-cell--selected) {
@@ -240,13 +244,13 @@
 }
 
 .cdp-today-btn {
-  font-size: 0.78rem;
+  font-size: 12px;
   font-weight: 600;
   color: #22C55E;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 8px 12px; /* Touch target padding */
   border-radius: 6px;
   transition: background 0.15s;
   font-family: inherit;
@@ -257,13 +261,13 @@
 }
 
 .cdp-clear-btn {
-  font-size: 0.78rem;
+  font-size: 12px;
   font-weight: 600;
   color: #94A3B8;
   background: transparent;
   border: none;
   cursor: pointer;
-  padding: 4px 8px;
+  padding: 8px 12px;
   border-radius: 6px;
   transition: background 0.15s, color 0.15s;
   font-family: inherit;
@@ -272,4 +276,14 @@
 .cdp-clear-btn:hover {
   background: #FEF2F2;
   color: #EF4444;
+}
+
+/* Breakpoints */
+@media (min-width: 768px) {
+  .cdp-wrapper {
+    width: auto;
+  }
+  .cdp-trigger {
+    width: auto;
+  }
 }

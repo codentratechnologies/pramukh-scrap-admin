@@ -1,5 +1,8 @@
+/* ========================================================
+   EDIT STOCK ENTRY (Mobile First)
+   ======================================================== */
 .edit-stock-container {
-  padding: 2rem;
+  padding: var(--space-16);
   background-color: var(--bg-main, #F9FAFB);
   flex-grow: 1;
   display: flex;
@@ -11,19 +14,19 @@
 
 /* Breadcrumbs */
 .breadcrumbs {
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
   color: #64748B;
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-20);
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: var(--space-8);
   flex-wrap: wrap;
 }
 
 .breadcrumb-item {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
+  gap: var(--space-4);
   color: #64748B;
   font-weight: 500;
   transition: color 0.15s;
@@ -56,23 +59,19 @@
   background-color: var(--white);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  padding: 1.5rem 2rem;
+  padding: var(--space-16);
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
-.mt-4 {
-  margin-top: 1.5rem;
-}
-.mt-3 {
-  margin-top: 1rem;
-}
+.mt-4 { margin-top: var(--space-24); }
+.mt-3 { margin-top: var(--space-16); }
 
 .section-header-wrapper {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+  padding-bottom: var(--space-16);
   border-bottom: 1px solid var(--border-light);
 }
 
@@ -94,45 +93,45 @@
 .red-text { color: #EF4444; }
 
 .section-title {
-  font-size: 1.2rem;
+  font-size: clamp(16px, 1.5vw, 18px);
   font-weight: 700;
   color: var(--blue-dark);
-  margin-bottom: 0.2rem;
+  margin-bottom: 4px;
 }
 
 .section-subtitle {
   color: var(--text-muted);
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
 }
 
 /* Material Profile Content */
 .material-profile-content {
   display: flex;
-  justify-content: space-between;
-  gap: 2rem;
+  flex-direction: column; /* Mobile first: stacked */
+  gap: var(--space-24);
 }
 
 .profile-details-left {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: var(--space-20);
 }
 
 .profile-row {
   display: flex;
   flex-direction: column;
-  gap: 0.3rem;
+  gap: 4px;
 }
 
 .profile-label {
-  font-size: 0.9rem;
+  font-size: clamp(13px, 1vw, 14px);
   font-weight: 600;
   color: var(--blue-dark);
 }
 
 .profile-value {
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--text-main);
   line-height: 1.4;
 }
@@ -142,38 +141,41 @@
 .stock-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
   background-color: #DCFCE7;
   color: #16A34A;
-  padding: 0.4rem 0.8rem;
+  padding: 6px 12px;
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.95rem;
-  margin-bottom: 0.5rem;
+  font-size: clamp(14px, 1vw, 15px);
+  margin-bottom: var(--space-8);
 }
 
 .lock-icon {
-  margin-left: 0.25rem;
+  margin-left: 4px;
 }
 
 .stock-hint {
-  font-size: 0.8rem;
+  font-size: 13px;
   color: #64748B;
 }
 
 .profile-details-right {
-  width: 320px;
-  flex-shrink: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-16);
 }
 
 .date-info-card {
   display: flex;
   align-items: center;
-  gap: 1rem;
-  padding: 1.25rem;
+  gap: var(--space-16);
+  padding: var(--space-16);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   background-color: var(--white);
+  flex: 1;
 }
 
 .date-icon-box {
@@ -190,17 +192,17 @@
 .date-text-box {
   display: flex;
   flex-direction: column;
-  gap: 0.25rem;
+  gap: 4px;
 }
 
 .date-label {
-  font-size: 0.8rem;
+  font-size: 13px;
   color: #64748B;
   font-weight: 500;
 }
 
 .date-value {
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--blue-dark);
 }
@@ -208,8 +210,9 @@
 /* Adjust Stock Content */
 .adjust-stock-content {
   display: flex;
-  gap: 2rem;
-  margin-bottom: 2rem;
+  flex-direction: column;
+  gap: var(--space-24);
+  margin-bottom: var(--space-24);
 }
 
 .adjust-form-left {
@@ -218,23 +221,22 @@
 
 .adjust-form-row {
   display: flex;
-  gap: 1.5rem;
-  align-items: flex-start;
-  margin-bottom: 2.5rem;
+  flex-direction: column;
+  gap: var(--space-8);
+  margin-bottom: var(--space-24);
 }
 
 .adjust-label-col {
-  width: 30%;
-  flex-shrink: 0;
+  width: 100%;
   display: flex;
   flex-direction: column;
 }
 
 .adjust-label-col label {
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--blue-dark);
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .required {
@@ -242,39 +244,41 @@
 }
 
 .adjust-desc {
-  font-size: 0.8rem;
+  font-size: 13px;
   color: #64748B;
 }
 
 .adjust-input-col {
   flex: 1;
-  max-width: 600px;
+  width: 100%;
 }
 
 .adjust-divider {
   height: 1px;
-  background-color: var(--border-light);
-  border-style: dashed;
-  margin: 1.5rem 0;
+  background-color: transparent;
+  border-bottom: 1px dashed var(--border-light);
+  margin: var(--space-24) 0;
 }
 
 /* Action Type Cards */
 .action-type-cards {
   display: flex;
-  gap: 1rem;
+  flex-direction: column;
+  gap: var(--space-12);
 }
 
 .action-card {
   flex: 1;
   display: flex;
   align-items: flex-start;
-  gap: 0.75rem;
-  padding: 1rem;
+  gap: var(--space-12);
+  padding: var(--space-16);
   border: 1px solid var(--border-light);
   border-radius: 8px;
   cursor: pointer;
   background-color: var(--white);
   transition: all 0.2s;
+  min-height: 44px;
 }
 
 .action-card:hover {
@@ -291,39 +295,36 @@
   background-color: #FEF2F2;
 }
 
-.action-radio-icon {
-  margin-top: 2px;
-}
-
-.action-arrow {
+.action-radio-icon, .action-arrow {
   margin-top: 2px;
 }
 
 .action-text-content {
   display: flex;
   flex-direction: column;
-  gap: 0.15rem;
+  gap: 2px;
 }
 
 .action-title {
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--text-main);
 }
 
 .action-subtitle {
-  font-size: 0.75rem;
+  font-size: 13px;
   color: #64748B;
 }
 
-/* Quantity & Remarks (Reusing standard styles) */
+/* Quantity & Remarks */
 .form-input {
   width: 100%;
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
+  min-height: 44px;
   border: 1px solid var(--border-light);
   border-radius: 6px;
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--text-main);
   background-color: var(--white);
   transition: all 0.2s;
@@ -344,8 +345,8 @@
 
 .field-error {
   color: #EF4444;
-  font-size: 0.8rem;
-  margin-top: 0.4rem;
+  font-size: 13px;
+  margin-top: 6px;
 }
 
 .quantity-input-group {
@@ -356,6 +357,7 @@
   background-color: var(--white);
   overflow: hidden;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .quantity-input-group:focus-within {
@@ -374,6 +376,8 @@
   border: none;
   border-radius: 0;
   flex: 1;
+  min-width: 0;
+  min-height: 44px;
 }
 
 .quantity-input:focus {
@@ -390,18 +394,19 @@
   appearance: none;
   background: transparent;
   border: none;
-  padding: 0.75rem 2rem 0.75rem 1rem;
+  padding: 12px 2rem 12px 1rem;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--blue-dark);
   cursor: pointer;
   outline: none;
+  min-height: 44px;
 }
 
 .unit-chevron {
   position: absolute;
-  right: 0.5rem;
+  right: 8px;
   top: 50%;
   transform: translateY(-50%);
   color: #6B7280;
@@ -417,44 +422,43 @@
 }
 .textarea-wrapper .char-count {
   position: absolute;
-  bottom: 0.75rem;
-  right: 1rem;
-  font-size: 0.75rem;
+  bottom: 12px;
+  right: 16px;
+  font-size: 12px;
   color: #9CA3AF;
   pointer-events: none;
 }
 
 /* Right Info Box */
 .adjust-info-right {
-  width: 280px;
-  flex-shrink: 0;
+  width: 100%;
 }
 
 .important-box {
-  background-color: #F8FAFC; /* light grey/blue */
+  background-color: #F8FAFC; 
   border: 1px solid #E2E8F0;
   border-radius: 8px;
-  padding: 1.25rem;
+  padding: var(--space-20);
 }
 
 .important-header {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
   font-weight: 600;
   color: var(--blue-dark);
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-16);
 }
 
 .important-list {
-  padding-left: 1.25rem;
+  padding-left: var(--space-20);
   display: flex;
   flex-direction: column;
-  gap: 0.75rem;
+  gap: var(--space-12);
 }
 
 .important-list li {
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
   color: #475569;
   line-height: 1.5;
 }
@@ -462,105 +466,92 @@
 /* Footer Actions */
 .edit-stock-footer {
   display: flex;
-  justify-content: flex-end;
-  align-items: center;
-  gap: 1rem;
-  padding-top: 1.5rem;
+  flex-direction: column; /* Mobile stack */
+  gap: var(--space-12);
+  align-items: stretch;
+  padding-top: var(--space-24);
   border-top: 1px solid var(--border-light);
 }
 
-.btn-cancel {
+.btn-cancel, .btn-save {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  background-color: var(--white);
-  border: 1px solid var(--border-light);
-  color: var(--text-main);
-  padding: 0.65rem 1.25rem;
+  justify-content: center;
+  gap: var(--space-8);
+  padding: 0 var(--space-20);
+  min-height: 44px;
   border-radius: 6px;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   cursor: pointer;
   font-family: inherit;
   transition: all 0.2s;
+  width: 100%;
 }
 
+.btn-cancel {
+  background-color: var(--white);
+  border: 1px solid var(--border-light);
+  color: var(--text-main);
+}
 .btn-cancel:hover {
   background-color: #F8FAFC;
   border-color: #CBD5E1;
 }
 
 .btn-save {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
   background-color: #16A34A;
   border: none;
   color: white;
-  padding: 0.65rem 1.25rem;
-  border-radius: 6px;
-  font-size: 0.95rem;
-  font-weight: 600;
-  cursor: pointer;
-  font-family: inherit;
-  transition: all 0.2s;
 }
-
 .btn-save:hover {
   background-color: #15803D;
 }
 
-/* Responsive */
-@media (max-width: 1024px) {
-  .material-profile-content,
-  .adjust-stock-content {
-    flex-direction: column;
-  }
-  
-  .profile-details-right,
-  .adjust-info-right {
-    width: 100%;
-  }
+/* ========================================================
+   BREAKPOINTS (Min-Width)
+   ======================================================== */
 
-  .date-info-card {
-    margin-top: 0;
-  }
-  
+/* sm: 480px */
+@media (min-width: 480px) {
   .profile-details-right {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .date-info-card {
-    flex: 1;
+    flex-direction: row;
   }
 }
 
-@media (max-width: 768px) {
-  .profile-details-right {
-    flex-direction: column;
-  }
-  
+/* md: 768px */
+@media (min-width: 768px) {
   .adjust-form-row {
-    flex-direction: column;
-    gap: 0.5rem;
+    flex-direction: row;
+    gap: var(--space-32);
   }
-  
   .adjust-label-col {
-    width: 100%;
+    width: 30%;
   }
-  
   .action-type-cards {
-    flex-direction: column;
+    flex-direction: row;
   }
-
   .edit-stock-footer {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
+    flex-direction: row;
+    justify-content: flex-end;
   }
-
   .btn-cancel, .btn-save {
-    justify-content: center;
+    width: auto;
+  }
+}
+
+/* lg: 1024px */
+@media (min-width: 1024px) {
+  .stock-section-card {
+    padding: var(--space-24) var(--space-32);
+  }
+  .material-profile-content,
+  .adjust-stock-content {
+    flex-direction: row;
+  }
+  .profile-details-right,
+  .adjust-info-right {
+    width: 320px;
+    flex-direction: column;
   }
 }

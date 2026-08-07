@@ -1,5 +1,8 @@
+/* ========================================================
+   ADD LABOR ENTRY (Mobile First)
+   ======================================================== */
 .add-labor-container {
-  padding: 2rem;
+  padding: var(--space-16);
   background-color: var(--bg-main, #F9FAFB);
   flex-grow: 1;
   display: flex;
@@ -13,16 +16,17 @@
 .breadcrumbs {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.85rem;
+  gap: var(--space-8);
+  font-size: clamp(13px, 1vw, 14px);
   color: var(--text-muted);
-  margin-bottom: 1.5rem;
+  margin-bottom: var(--space-20);
+  flex-wrap: wrap;
 }
 
 .breadcrumb-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: var(--space-8);
   cursor: pointer;
 }
 
@@ -43,41 +47,45 @@
   background-color: var(--white);
   border: 1px solid var(--border-light);
   border-radius: 12px;
-  padding: 1rem 1.25rem;
-  margin-bottom: 1.5rem;
+  padding: var(--space-16);
+  margin-bottom: var(--space-20);
   box-shadow: 0 1px 3px rgba(0,0,0,0.02);
 }
 
 .section-header {
   display: flex;
+  flex-direction: column; /* Mobile: Stack */
+  gap: var(--space-12);
   justify-content: space-between;
   align-items: flex-start;
-  margin-bottom: 1rem;
+  margin-bottom: var(--space-16);
 }
 
 .section-title-group h3 {
-  font-size: 1.1rem;
+  font-size: clamp(16px, 1.5vw, 18px);
   font-weight: 600;
   color: var(--blue-dark);
-  margin-bottom: 0.25rem;
+  margin-bottom: 4px;
 }
 
 .section-title-group p {
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
   color: var(--text-muted);
 }
 
 .btn-outline-green {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: var(--space-8);
   background-color: transparent;
   color: #22C55E;
   border: 1px solid #22C55E;
-  padding: 0.5rem 1rem;
+  min-height: 44px; /* Touch target */
+  width: 100%; /* Mobile full width */
   border-radius: 6px;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: clamp(14px, 1vw, 15px);
   cursor: pointer;
   transition: all 0.2s;
 }
@@ -89,21 +97,22 @@
 /* Form Grid & Inputs */
 .form-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1.25rem;
-  margin-bottom: 1rem;
+  grid-template-columns: 1fr; /* Mobile: 1 col */
+  gap: var(--space-20);
+  margin-bottom: var(--space-16);
 }
 
 .form-group {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-8);
 }
 
 .form-label {
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
   font-weight: 600;
   color: var(--blue-dark);
+  word-wrap: break-word;
 }
 
 .required {
@@ -113,9 +122,10 @@
 .form-control {
   border: 1px solid var(--border-light);
   border-radius: 6px;
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
+  min-height: 44px; /* Touch target */
   font-family: inherit;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--text-main);
   outline: none;
   background-color: var(--white);
@@ -138,8 +148,8 @@
 
 .error-text {
   color: #EF4444;
-  font-size: 0.75rem;
-  margin-top: 0.25rem;
+  font-size: 12px;
+  margin-top: 4px;
   font-weight: 500;
   text-align: left;
   display: block;
@@ -155,7 +165,7 @@
 }
 .react-datepicker {
   font-family: inherit !important;
-  font-size: 0.8rem !important;
+  font-size: 0.9rem !important;
   border: 1px solid var(--border-light) !important;
   border-radius: 10px !important;
   box-shadow: 0 4px 12px rgba(0,0,0,0.08) !important;
@@ -171,34 +181,15 @@
 .react-datepicker-year-header {
   color: var(--blue-dark) !important;
   font-weight: 600 !important;
-  font-size: 0.9rem !important;
 }
 .react-datepicker__day-name {
   color: var(--text-muted) !important;
   font-weight: 500;
 }
-.react-datepicker__day-name, .react-datepicker__day {
-  width: 1.7rem !important;
-  line-height: 1.7rem !important;
-  margin: 0.1rem !important;
-}
-.react-datepicker__day {
-  color: var(--text-main) !important;
-  border-radius: 6px !important;
-}
-.react-datepicker__day:hover {
-  background-color: #F1F5F9 !important;
-}
 .react-datepicker__day--selected,
 .react-datepicker__day--keyboard-selected {
   background-color: #22C55E !important;
   color: white !important;
-}
-.react-datepicker__day--selected:hover {
-  background-color: #16A34A !important;
-}
-.react-datepicker__navigation {
-  top: 0.5rem !important;
 }
 
 .form-control-icon {
@@ -224,25 +215,24 @@
   align-items: center;
 }
 
-
 textarea.form-control {
   resize: vertical;
-  min-height: 60px;
+  min-height: 80px;
 }
 
 .char-count {
   text-align: right;
-  font-size: 0.75rem;
+  font-size: 12px;
   color: #9CA3AF;
-  margin-top: 0.25rem;
+  margin-top: 4px;
 }
 
 /* Employee Accordion Rows */
 .employee-list {
   display: flex;
   flex-direction: column;
-  gap: 1rem;
-  margin-bottom: 1.5rem;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
 }
 
 .employee-row {
@@ -254,28 +244,38 @@ textarea.form-control {
 
 .employee-row-header {
   display: flex;
-  align-items: center;
-  padding: 1rem 1.5rem;
+  flex-direction: column; /* Stack on mobile */
+  align-items: stretch;
+  padding: var(--space-16);
   cursor: pointer;
   background-color: var(--white);
-  flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: var(--space-12);
 }
 
 .employee-row-header:hover {
   background-color: #F1F5F9;
 }
 
+.row-header-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 .row-index {
   font-weight: 500;
-  margin-right: 0.5rem;
+  margin-right: var(--space-8);
   color: var(--text-main);
 }
 
 .row-chevron {
   color: #9CA3AF;
-  margin-right: 1rem;
   transition: transform 0.2s;
+  min-width: 44px;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .employee-row.expanded .row-chevron {
@@ -284,17 +284,17 @@ textarea.form-control {
 
 .row-emp-name {
   flex-grow: 1;
-  min-width: 150px;
+  width: 100%;
 }
 
 .emp-name-input {
   border: 1px solid transparent;
   background-color: transparent;
-  padding: 0.35rem 0.5rem;
+  padding: 8px;
+  min-height: 44px; /* Touch target */
   width: 100%;
-  max-width: 250px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--blue-dark);
   font-family: inherit;
   border-radius: 4px;
@@ -309,9 +309,9 @@ textarea.form-control {
 
 .row-stats {
   display: flex;
-  gap: 2rem;
-  margin-right: 1.5rem;
-  font-size: 0.85rem;
+  flex-wrap: wrap;
+  gap: var(--space-16);
+  font-size: clamp(13px, 1vw, 14px);
 }
 
 .row-stat-label {
@@ -331,8 +331,8 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px; /* Touch target */
+  height: 44px;
   background-color: #FEF2F2;
   color: #EF4444;
   border: 1px solid #FEE2E2;
@@ -348,36 +348,47 @@ textarea.form-control {
 /* Expanded Work Types Table */
 .employee-row-content {
   background-color: var(--white);
-  padding: 1.5rem;
+  padding: var(--space-16);
   border-top: 1px solid var(--border-light);
 }
 
 .work-types-header {
   display: flex;
+  flex-direction: column; /* Stack on mobile */
+  gap: var(--space-12);
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1rem;
+  align-items: flex-start;
+  margin-bottom: var(--space-16);
 }
 
 .work-types-title {
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 600;
   color: var(--blue-dark);
+}
+
+/* Horizontal scroll for inner tables */
+.work-types-table-wrapper {
+  overflow-x: auto;
+  width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .work-types-table {
   width: 100%;
+  min-width: 600px;
   border-collapse: collapse;
 }
 
 .work-types-table th {
-  padding: 0.75rem 1rem;
+  padding: 12px 16px;
   text-align: left;
-  font-size: 0.8rem;
+  font-size: 13px;
   font-weight: 600;
   color: var(--blue-dark);
   border-bottom: 1px solid var(--border-light);
   background-color: #F8FAFC;
+  white-space: nowrap;
 }
 
 .work-types-table th:first-child {
@@ -391,7 +402,7 @@ textarea.form-control {
 }
 
 .work-types-table td {
-  padding: 1rem;
+  padding: var(--space-16);
   vertical-align: middle;
 }
 
@@ -401,11 +412,14 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
+  min-height: 44px;
 }
 
 .wt-input-small {
-  padding: 0.6rem 0.75rem;
-  font-size: 0.85rem;
+  padding: 10px 12px;
+  font-size: clamp(13px, 1vw, 14px);
+  width: 100%;
+  min-height: 44px;
 }
 
 .custom-select-container.wt-input-small {
@@ -413,14 +427,15 @@ textarea.form-control {
 }
 
 .custom-select-container.wt-input-small .custom-select-trigger {
-  padding: 0.6rem 0.75rem;
-  font-size: 0.85rem;
+  padding: 10px 12px;
+  font-size: clamp(13px, 1vw, 14px);
+  min-height: 44px;
 }
 
 .wt-amount {
   font-weight: 600;
   color: #22C55E;
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
 }
 
 /* Grand Totals */
@@ -428,29 +443,29 @@ textarea.form-control {
   background-color: #F8FAFC;
   border: 1px solid var(--border-light);
   border-radius: 8px;
-  padding: 1rem 2rem;
+  padding: var(--space-20);
   display: flex;
-  justify-content: center;
-  gap: 4rem;
+  flex-direction: column; /* Mobile: Stack */
+  gap: var(--space-16);
   align-items: center;
 }
 
 .gt-group {
   display: flex;
   align-items: center;
-  gap: 1rem;
+  gap: var(--space-8);
 }
 
 .gt-label {
   font-weight: 500;
   color: var(--text-main);
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
 }
 
 .gt-val {
   font-weight: 700;
   color: var(--blue-dark);
-  font-size: 1.05rem;
+  font-size: clamp(16px, 1.5vw, 18px);
 }
 
 .gt-val.green {
@@ -460,37 +475,39 @@ textarea.form-control {
 /* Section 3: Deductions Calculation */
 .deductions-layout {
   display: flex;
-  gap: 2rem;
-  align-items: flex-start;
+  flex-direction: column; /* Stack */
+  gap: var(--space-24);
 }
 
 .deductions-inputs {
-  flex: 1;
+  width: 100%;
 }
 
 .deductions-calc {
-  flex: 1.5;
+  width: 100%;
   display: flex;
-  align-items: center;
-  justify-content: space-between;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-16);
   background-color: #F8FAFC;
   border-radius: 8px;
-  padding: 0.75rem 1.5rem;
+  padding: var(--space-16);
 }
 
 .calc-box {
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: var(--space-8);
+  width: 100%;
 }
 
 .calc-label {
-  font-size: 0.85rem;
+  font-size: clamp(13px, 1vw, 14px);
   color: var(--text-muted);
 }
 
 .calc-val {
-  font-size: 1.25rem;
+  font-size: clamp(20px, 2vw, 24px);
   font-weight: 700;
   color: var(--blue-dark);
 }
@@ -500,36 +517,35 @@ textarea.form-control {
 }
 
 .calc-operator {
-  font-size: 1.5rem;
-  color: #9CA3AF;
-  font-weight: 300;
-  margin-top: 1.5rem;
+  display: none; /* Hide operators on mobile vertical stack */
 }
 
 .hint-text {
-  font-size: 0.75rem;
+  font-size: 12px;
   color: #9CA3AF;
-  margin-top: 0.25rem;
+  margin-top: 4px;
 }
 
 /* Footer Actions */
 .form-footer-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding-top: 1rem;
+  flex-direction: column; /* Stack on mobile */
+  gap: var(--space-16);
+  padding-top: var(--space-16);
 }
 
 .btn-secondary {
   background-color: var(--white);
   border: 1px solid var(--border-light);
   color: var(--text-main);
-  padding: 0.5rem 1rem;
+  padding: 0 var(--space-16);
+  min-height: 44px;
   border-radius: 6px;
   font-weight: 500;
-  font-size: 0.85rem;
+  font-size: clamp(14px, 1vw, 15px);
   cursor: pointer;
   transition: all 0.2s;
+  width: 100%;
 }
 
 .btn-secondary:hover {
@@ -540,46 +556,22 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 0.5rem;
-  width: auto;
+  gap: var(--space-8);
+  width: 100%; /* Mobile full width */
   background-color: #22C55E;
   color: white;
   border: none;
-  padding: 0.5rem 1.25rem;
+  min-height: 44px;
+  padding: 0 var(--space-20);
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.85rem;
+  font-size: clamp(14px, 1vw, 15px);
   cursor: pointer;
   transition: background-color 0.2s;
 }
 
 .btn-primary:hover {
   background-color: #16A34A;
-}
-
-@media (max-width: 768px) {
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .deductions-layout {
-    flex-direction: column;
-  }
-  
-  .deductions-calc {
-    width: 100%;
-    flex-direction: column;
-    gap: 1rem;
-  }
-  
-  .calc-operator {
-    display: none;
-  }
-  
-  .grand-totals-bar {
-    flex-direction: column;
-    gap: 1rem;
-  }
 }
 
 /* Add Supervisor Modal Styles */
@@ -595,12 +587,13 @@ textarea.form-control {
   justify-content: center;
   z-index: 1000;
   backdrop-filter: blur(4px);
+  padding: var(--space-16);
 }
 
 .modal-content.supervisor-modal {
   background: white;
   border-radius: 12px;
-  width: 90%;
+  width: 100%;
   max-width: 400px;
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
   overflow: hidden;
@@ -616,13 +609,13 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 1.25rem 1.5rem;
+  padding: var(--space-20) var(--space-24);
   border-bottom: 1px solid #E2E8F0;
 }
 
 .modal-header h3 {
   margin: 0;
-  font-size: 1.15rem;
+  font-size: clamp(16px, 1.5vw, 18px);
   color: #0F172A;
   font-weight: 600;
 }
@@ -635,7 +628,8 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 0.25rem;
+  min-width: 44px;
+  min-height: 44px;
   border-radius: 6px;
   transition: all 0.2s;
 }
@@ -646,14 +640,14 @@ textarea.form-control {
 }
 
 .modal-body {
-  padding: 1.5rem;
+  padding: var(--space-24);
 }
 
 .modal-footer {
   display: flex;
-  justify-content: flex-end;
-  gap: 1rem;
-  padding: 1.25rem 1.5rem;
+  flex-direction: column; /* Stack on mobile */
+  gap: var(--space-16);
+  padding: var(--space-20) var(--space-24);
   background-color: #F8FAFC;
   border-top: 1px solid #E2E8F0;
 }
@@ -662,7 +656,8 @@ textarea.form-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 42px;
+  width: 100%;
+  min-height: 44px;
   background-color: #E8F5E9;
   color: #1F7C38;
   border: 1px solid #C8E6C9;
@@ -674,4 +669,106 @@ textarea.form-control {
 .btn-add-supervisor:hover {
   background-color: #C8E6C9;
   color: #145324;
+}
+
+/* ========================================================
+   BREAKPOINTS (Min-Width)
+   ======================================================== */
+
+/* sm: 480px */
+@media (min-width: 480px) {
+  .employee-row-header {
+    flex-direction: row;
+    align-items: center;
+    flex-wrap: wrap;
+  }
+  .row-emp-name {
+    width: auto;
+    flex-grow: 1;
+  }
+  .emp-name-input {
+    max-width: 250px;
+  }
+  .modal-footer {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  .btn-add-supervisor {
+    width: 44px;
+  }
+}
+
+/* md: 768px */
+@media (min-width: 768px) {
+  .section-header {
+    flex-direction: row;
+    align-items: flex-start;
+  }
+  .btn-outline-green {
+    width: auto;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .work-types-header {
+    flex-direction: row;
+    align-items: center;
+  }
+  
+  .grand-totals-bar {
+    flex-direction: row;
+    justify-content: center;
+    gap: var(--space-48);
+  }
+
+  .deductions-layout {
+    flex-direction: row;
+  }
+  
+  .deductions-inputs {
+    flex: 1;
+  }
+  
+  .deductions-calc {
+    flex: 1.5;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .calc-operator {
+    display: block;
+    font-size: 1.5rem;
+    color: #9CA3AF;
+    font-weight: 300;
+  }
+  
+  .form-footer-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+  }
+  
+  .btn-secondary, .btn-primary {
+    width: auto;
+  }
+}
+
+/* lg: 1024px */
+@media (min-width: 1024px) {
+  .add-labor-container {
+    padding: var(--space-32);
+  }
+  .form-section {
+    padding: var(--space-20) var(--space-24);
+  }
+  
+  .row-stats {
+    gap: var(--space-32);
+    margin-right: var(--space-24);
+  }
+  .employee-row-content {
+    padding: var(--space-24);
+  }
 }

@@ -1,5 +1,9 @@
+/* ========================================================
+   STOCK LIST (Mobile First)
+   ======================================================== */
+
 .stock-container {
-  padding: 2rem;
+  padding: var(--space-16);
   background-color: var(--bg-main);
   flex-grow: 1;
   display: flex;
@@ -13,7 +17,7 @@
 .stock-card {
   background-color: var(--white);
   border-radius: 12px;
-  padding: 1.5rem;
+  padding: var(--space-16);
   box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
   border: 1px solid var(--border-light);
   flex-grow: 1;
@@ -24,36 +28,38 @@
 
 .stock-header-section {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-bottom: var(--space-20);
+  gap: var(--space-16);
 }
 
 .stock-title {
-  font-size: 1.5rem;
+  font-size: clamp(20px, 2vw, 24px);
   font-weight: 700;
   color: var(--blue-dark);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-4);
 }
 
 .stock-subtitle {
   color: var(--text-muted);
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
 }
 
 .btn-add-stock {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: var(--space-8);
   background-color: #22C55E;
   color: white;
   border: none;
-  padding: 0.6rem 1.25rem;
+  min-height: 44px;
+  width: 100%; /* Mobile first: full width */
+  padding: 0 var(--space-16);
   border-radius: 6px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: clamp(14px, 1vw, 15px);
   cursor: pointer;
   transition: background-color 0.2s;
   font-family: inherit;
@@ -65,11 +71,11 @@
 
 .stock-filters {
   display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  flex-wrap: wrap;
-  gap: 1rem;
+  flex-direction: column;
+  gap: var(--space-16);
+  margin-bottom: var(--space-24);
+  align-items: stretch;
+  width: 100%;
 }
 
 .search-box {
@@ -78,15 +84,14 @@
   background-color: var(--white);
   border: 1px solid var(--border-light);
   border-radius: 6px;
-  padding: 0.5rem 1rem;
-  min-width: 450px;
-  flex: 1;
-  max-width: 600px;
+  padding: 0 var(--space-16);
+  min-height: 44px;
+  width: 100%;
 }
 
 .search-icon {
   color: #9CA3AF;
-  margin-right: 0.75rem;
+  margin-right: var(--space-12);
 }
 
 .search-box input {
@@ -94,7 +99,7 @@
   outline: none;
   width: 100%;
   font-family: inherit;
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--text-main);
 }
 
@@ -104,17 +109,20 @@
 
 .filter-actions {
   display: flex;
-  gap: 1rem;
+  gap: var(--space-16);
+  width: 100%;
 }
 
 .btn-filter, .btn-reset {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: var(--space-8);
   background-color: var(--white);
   border-radius: 6px;
-  padding: 0.5rem 1rem;
-  font-size: 0.9rem;
+  min-height: 44px;
+  flex: 1; /* Split evenly on mobile */
+  font-size: clamp(14px, 1vw, 15px);
   font-weight: 500;
   cursor: pointer;
   font-family: inherit;
@@ -139,7 +147,9 @@
   background-color: #F9FAFB;
 }
 
-/* Table Styles */
+/* ========================================================
+   TABLE STYLES
+   ======================================================== */
 .table-container {
   background-color: var(--white);
   border: 1px solid var(--border-light);
@@ -147,10 +157,11 @@
   overflow-x: auto;
   overflow-y: auto;
   max-height: calc(100vh - 330px);
-  margin-bottom: 0.25rem;
+  margin-bottom: var(--space-4);
   box-shadow: 0 1px 2px rgba(0,0,0,0.02);
   min-width: 0;
   width: 100%;
+  -webkit-overflow-scrolling: touch;
 }
 
 .stock-table {
@@ -161,8 +172,8 @@
 }
 
 .stock-table th {
-  padding: 1rem 1.25rem;
-  font-size: 0.85rem;
+  padding: var(--space-16) var(--space-20);
+  font-size: 13px;
   font-weight: 600;
   color: var(--blue-dark);
   border: 1px solid var(--border-light);
@@ -175,15 +186,15 @@
 
 .stock-table th .sort-icon {
   color: #CBD5E1;
-  margin-left: 0.5rem;
+  margin-left: var(--space-8);
   vertical-align: middle;
   cursor: pointer;
 }
 
 .stock-table td {
-  padding: 1rem 1.25rem;
+  padding: var(--space-16) var(--space-20);
   border: 1px solid var(--border-light);
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   color: var(--text-main);
   vertical-align: middle;
 }
@@ -205,10 +216,10 @@
 .status-badge {
   display: inline-flex;
   align-items: center;
-  gap: 0.4rem;
-  padding: 0.25rem 0.75rem;
+  gap: var(--space-4);
+  padding: 4px 12px;
   border-radius: 12px;
-  font-size: 0.75rem;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -238,7 +249,7 @@
 
 .actions-container {
   display: flex;
-  gap: 0.5rem;
+  gap: var(--space-8);
   justify-content: center;
 }
 
@@ -248,14 +259,14 @@
 .action-btn {
   background-color: var(--white);
   border: 1px solid #E2E8F0;
-  border-radius: 16px; /* Oval shape */
-  width: 44px;
-  height: 32px;
+  border-radius: 16px;
+  width: 44px; /* Ensure 44px min height/width */
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  color: #3B82F6; /* Blue icon */
+  color: #3B82F6;
   transition: all 0.2s;
 }
 
@@ -273,27 +284,32 @@
   border-color: #FECACA;
 }
 
-/* Pagination */
+/* ========================================================
+   PAGINATION
+   ======================================================== */
 .pagination-section {
   display: flex;
-  justify-content: space-between;
+  flex-direction: column;
+  gap: var(--space-16);
   align-items: center;
-  padding: 0.5rem 0;
+  padding: var(--space-8) 0;
 }
 
 .pagination-info {
-  font-size: 0.9rem;
+  font-size: clamp(13px, 1vw, 14px);
   color: var(--text-muted);
 }
 
 .pagination-controls {
   display: flex;
-  gap: 0.35rem;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+  justify-content: center;
 }
 
 .page-btn {
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -302,7 +318,7 @@
   color: var(--text-main);
   border-radius: 6px;
   cursor: pointer;
-  font-size: 0.9rem;
+  font-size: clamp(14px, 1vw, 15px);
   font-family: inherit;
   transition: all 0.2s;
 }
@@ -322,55 +338,74 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 32px;
-  height: 32px;
+  width: 44px;
+  height: 44px;
   color: var(--text-muted);
 }
 
-/* Responsive */
-@media (max-width: 1200px) {
-  .table-container {
-    overflow-x: auto;
-  }
-}
+/* ========================================================
+   BREAKPOINTS (Min-Width)
+   ======================================================== */
 
-@media (max-width: 1024px) {
-  .stock-container {
-    padding: 1rem;
-  }
-  .stock-card {
-    padding: 1rem;
-  }
-}
-
-@media (max-width: 768px) {
+/* md: 768px */
+@media (min-width: 768px) {
   .stock-header-section {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 1rem;
-  }
-  
-  .stock-filters {
-    flex-direction: column;
-    align-items: stretch;
-  }
-  
-  .search-box {
-    min-width: 100%;
-  }
-  
-  .filter-actions {
+    flex-direction: row;
+    align-items: center;
     justify-content: space-between;
   }
   
-  .btn-filter, .btn-reset {
+  .btn-add-stock {
+    width: auto;
+  }
+  
+  .stock-filters {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .search-box {
+    width: auto;
     flex: 1;
-    justify-content: center;
+    min-width: 300px;
+  }
+  
+  .filter-actions {
+    width: auto;
   }
 
+  .btn-filter, .btn-reset {
+    flex: none;
+    min-width: 100px;
+  }
+  
   .pagination-section {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: center;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .page-btn, .page-dots {
+    width: 32px;
+    height: 32px;
+  }
+  
+  .action-btn {
+    width: 44px;
+    height: 32px;
+  }
+}
+
+/* lg: 1024px */
+@media (min-width: 1024px) {
+  .stock-container {
+    padding: var(--space-32);
+  }
+  .stock-card {
+    padding: var(--space-24);
+  }
+  .search-box {
+    min-width: 450px;
+    max-width: 600px;
   }
 }

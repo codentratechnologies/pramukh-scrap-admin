@@ -499,6 +499,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                 className="btn-add-supervisor"
                 onClick={() => setShowSupervisorModal(true)}
                 title="Add New Supervisor"
+                style={{ width: '44px', flexShrink: 0, padding: 0 }}
               >
                 <UserPlus size={18} />
               </button>
@@ -540,86 +541,90 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
 
             return (
               <div key={emp.id} className={`employee-row ${expandedRow === emp.id ? 'expanded' : ''}`}>
-                <div className="employee-row-header" onClick={() => toggleRow(emp.id)}>
-                  <span className="row-index">{index + 1}.</span>
-                  <ChevronRight size={16} className="row-chevron" />
-                  <div className="row-emp-name" style={{ display: 'flex', flexDirection: 'column' }}>
-                    {addingNewEmpRowId === emp.id ? (
-                      <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch', height: '100%' }}>
-                        <input 
-                          type="text" 
-                          className={`form-control ${errors[`emp_${emp.id}_name`] ? 'error-border' : ''}`}
-                          style={{ flex: 1, margin: 0 }}
-                          value={newEmpName}
-                          onChange={(e) => { setNewEmpName(e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
-                          onClick={(e) => e.stopPropagation()} 
-                          placeholder="Enter New Employee Name"
-                          autoFocus
-                        />
-                        <button 
-                          className="btn-primary" 
-                          style={{ padding: '0 1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'auto', margin: 0 }}
-                          onClick={(e) => { e.stopPropagation(); handleSaveNewEmployee(emp.id); }}
-                          disabled={isAddingEmployee}
-                        >
-                          {isAddingEmployee ? '...' : 'Save'}
-                        </button>
-                        <button 
-                          style={{ 
-                            padding: '0', 
-                            width: '44px', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center',
-                            backgroundColor: '#F1F5F9',
-                            color: '#64748B',
-                            border: 'none',
-                            borderRadius: '6px',
-                            cursor: 'pointer',
-                            margin: 0
-                          }}
-                          onMouseOver={(e) => { e.currentTarget.style.backgroundColor = '#E2E8F0'; e.currentTarget.style.color = '#334155'; }}
-                          onMouseOut={(e) => { e.currentTarget.style.backgroundColor = '#F1F5F9'; e.currentTarget.style.color = '#64748B'; }}
-                          onClick={(e) => { e.stopPropagation(); setAddingNewEmpRowId(null); setNewEmpName(''); }}
-                          disabled={isAddingEmployee}
-                        >
-                          <X size={18} />
-                        </button>
-                      </div>
-                    ) : (
-                      <div className="form-control-select">
-                        <CustomSelect
-                          name={`emp_${emp.id}_name`}
-                          value={emp.name}
-                          onChange={(e) => { handleEmployeeNameChange(emp.id, e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
-                          options={[
-                            ...employeeList.map(e => ({ value: e.name, label: e.name })),
-                            { value: '__add_new__', label: '+ Add New Employee' }
-                          ]}
-                          placeholder="Select Employee Name"
-                          error={!!errors[`emp_${emp.id}_name`]}
-                        />
-                      </div>
-                    )}
-                    {errors[`emp_${emp.id}_name`] && <span className="error-text" style={{marginTop: '2px'}}>{errors[`emp_${emp.id}_name`]}</span>}
+                <div className="employee-row-header" onClick={() => toggleRow(emp.id)} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                  
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px', width: '100%', flexWrap: 'nowrap' }}>
+                    <span className="row-index">{index + 1}.</span>
+                    
+                    <div className="row-emp-name" style={{ flex: 1, minWidth: 0 }} onClick={(e) => e.stopPropagation()}>
+                      {addingNewEmpRowId === emp.id ? (
+                        <div style={{ display: 'flex', gap: '8px', alignItems: 'stretch', height: '100%' }}>
+                          <input 
+                            type="text" 
+                            className={`form-control ${errors[`emp_${emp.id}_name`] ? 'error-border' : ''}`}
+                            style={{ flex: 1, margin: 0 }}
+                            value={newEmpName}
+                            onChange={(e) => { setNewEmpName(e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
+                            placeholder="New Name"
+                            autoFocus
+                          />
+                          <button 
+                            className="btn-primary" 
+                            style={{ padding: '0 0.5rem', display: 'flex', alignItems: 'center', justifyContent: 'center', height: 'auto', margin: 0 }}
+                            onClick={(e) => { e.stopPropagation(); handleSaveNewEmployee(emp.id); }}
+                            disabled={isAddingEmployee}
+                          >
+                            {isAddingEmployee ? '...' : 'Save'}
+                          </button>
+                          <button 
+                            style={{ 
+                              padding: '0', 
+                              width: '44px', 
+                              display: 'flex', 
+                              alignItems: 'center', 
+                              justifyContent: 'center',
+                              backgroundColor: '#F1F5F9',
+                              color: '#64748B',
+                              border: 'none',
+                              borderRadius: '6px',
+                              cursor: 'pointer',
+                              margin: 0
+                            }}
+                            onClick={(e) => { e.stopPropagation(); setAddingNewEmpRowId(null); setNewEmpName(''); }}
+                            disabled={isAddingEmployee}
+                          >
+                            <X size={18} />
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="form-control-select">
+                          <CustomSelect
+                            name={`emp_${emp.id}_name`}
+                            value={emp.name}
+                            onChange={(e) => { handleEmployeeNameChange(emp.id, e.target.value); setErrors({...errors, [`emp_${emp.id}_name`]: null}); }}
+                            options={[
+                              ...employeeList.map(e => ({ value: e.name, label: e.name })),
+                              { value: '__add_new__', label: '+ Add New Employee' }
+                            ]}
+                            placeholder="Select Employee Name"
+                            error={!!errors[`emp_${emp.id}_name`]}
+                          />
+                        </div>
+                      )}
+                      {errors[`emp_${emp.id}_name`] && <span className="error-text" style={{marginTop: '2px'}}>{errors[`emp_${emp.id}_name`]}</span>}
+                    </div>
+
+                    <ChevronRight size={20} className="row-chevron" />
                   </div>
                   
-                  <div className="row-stats">
-                    <div>
-                      <span className="row-stat-label">Total Weight: </span>
-                      <span className="row-stat-val">{hasData ? formatWeight(empTotalWeight) + ' Kg' : '-'}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '12px' }}>
+                    <div className="row-stats" style={{ flex: 1 }}>
+                      <div>
+                        <span className="row-stat-label">Total Weight: </span>
+                        <span className="row-stat-val">{hasData ? formatWeight(empTotalWeight) + ' Kg' : '-'}</span>
+                      </div>
+                      <div>
+                        <span className="row-stat-label">Total Amount: </span>
+                        <span className={`row-stat-val ${hasData && empTotalAmount > 0 ? 'green' : ''}`}>
+                          {hasData ? `₹ ${formatMoney(empTotalAmount)}` : '-'}
+                        </span>
+                      </div>
                     </div>
-                    <div>
-                      <span className="row-stat-label">Total Amount: </span>
-                      <span className={`row-stat-val ${hasData && empTotalAmount > 0 ? 'green' : ''}`}>
-                        {hasData ? `₹ ${formatMoney(empTotalAmount)}` : '-'}
-                      </span>
-                    </div>
+                    
+                    <button className="btn-icon-danger" style={{ flexShrink: 0 }} onClick={(e) => handleDeleteEmployee(emp.id, e)}>
+                      <Trash2 size={16} />
+                    </button>
                   </div>
-                  
-                  <button className="btn-icon-danger" onClick={(e) => handleDeleteEmployee(emp.id, e)}>
-                    <Trash2 size={16} />
-                  </button>
                 </div>
                 
                 {expandedRow === emp.id && (
@@ -635,6 +640,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                     </div>
                     
                     {emp.workTypes && emp.workTypes.length > 0 ? (
+                    <div className="work-types-table-wrapper">
                     <table className="work-types-table">
                       <thead>
                         <tr>
@@ -742,6 +748,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                         })}
                       </tbody>
                     </table>
+                    </div>
                     ) : (
                       <div style={{padding: '2rem', textAlign: 'center', color: '#9CA3AF', fontSize: '0.9rem', backgroundColor: '#F8FAFC', borderRadius: '8px', border: '1px dashed #CBD5E1'}}>
                         No work types added yet. Click "Add Work Type" to begin.

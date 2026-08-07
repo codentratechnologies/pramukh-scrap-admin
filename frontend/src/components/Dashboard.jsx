@@ -478,7 +478,7 @@ const Dashboard = ({ onLogout }) => {
                 })</span></h3>
               </div>
               <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'nowrap', gap: '1.5rem', width: '100%', justifyContent: 'center' }}>
+                <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', width: '100%', justifyContent: 'center' }}>
                   <div className="chart-container" style={{ flex: '0 0 250px', height: '250px', position: 'relative' }}>
                     <ResponsiveContainer width="100%" height="100%">
                       <PieChart>
