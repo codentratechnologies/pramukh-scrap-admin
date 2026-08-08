@@ -79,6 +79,48 @@ const PieCustomTooltip = ({ active, payload }) => {
   return null;
 };
 
+const DynamicPieChart = ({ data }) => {
+  const [tooltipPos, setTooltipPos] = useState(undefined);
+
+  const handleMouseMove = (e) => {
+    if (e && e.chartX != null && e.chartY != null) {
+      // The pie chart container is 250px wide. Midpoint is 125.
+      const isRightHalf = e.chartX > 125;
+      setTooltipPos({
+        x: isRightHalf ? e.chartX - 160 : e.chartX + 20, // Offset left or right
+        y: e.chartY - 20
+      });
+    }
+  };
+
+  return (
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart onMouseMove={handleMouseMove} onMouseLeave={() => setTooltipPos(undefined)}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          innerRadius={90}
+          outerRadius={120}
+          paddingAngle={0}
+          dataKey="value"
+          stroke="#ffffff"
+          strokeWidth={2}
+        >
+          {data.map((entry, index) => (
+            <Cell key={`cell-${index}`} fill={entry.color} />
+          ))}
+        </Pie>
+        <Tooltip 
+          content={<PieCustomTooltip />} 
+          position={tooltipPos}
+          isAnimationActive={false}
+        />
+      </PieChart>
+    </ResponsiveContainer>
+  );
+};
+
 const Dashboard = ({ onLogout }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
@@ -480,26 +522,7 @@ const Dashboard = ({ onLogout }) => {
               <div style={{ flexGrow: 1, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                 <div style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '1.5rem', width: '100%', justifyContent: 'center' }}>
                   <div className="chart-container" style={{ flex: '0 0 250px', height: '250px', position: 'relative' }}>
-                    <ResponsiveContainer width="100%" height="100%">
-                      <PieChart>
-                        <Pie
-                          data={dashboardData?.workTypeData || fallbackWorkTypeData}
-                          cx="50%"
-                          cy="50%"
-                          innerRadius={90}
-                          outerRadius={120}
-                          paddingAngle={0}
-                          dataKey="value"
-                          stroke="#ffffff"
-                          strokeWidth={2}
-                        >
-                        {(dashboardData?.workTypeData || fallbackWorkTypeData).map((entry, index) => (
-                          <Cell key={`cell-${index}`} fill={entry.color} />
-                        ))}
-                        </Pie>
-                        <Tooltip content={<PieCustomTooltip />} />
-                      </PieChart>
-                  </ResponsiveContainer>
+                    <DynamicPieChart data={dashboardData?.workTypeData || fallbackWorkTypeData} />
                   {/* Center Text */}
                   <div style={{
                     position: 'absolute',

@@ -604,7 +604,9 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                       {errors[`emp_${emp.id}_name`] && <span className="error-text" style={{marginTop: '2px'}}>{errors[`emp_${emp.id}_name`]}</span>}
                     </div>
 
-                    <ChevronRight size={20} className="row-chevron" />
+                    <div className="row-chevron">
+                      <ChevronRight size={20} />
+                    </div>
                   </div>
                   
                   <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', gap: '12px' }}>

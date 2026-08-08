@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown } from 'lucide-react';
+import { createPortal } from 'react-dom';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import './CustomSelect.css';
 
 const CustomSelect = ({ 
@@ -13,17 +14,45 @@ const CustomSelect = ({
   error = false
 }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [dropdownCoords, setDropdownCoords] = useState({ top: 0, left: 0, width: 0 });
   const containerRef = useRef(null);
 
   useEffect(() => {
     const handleOutsideClick = (event) => {
-      if (containerRef.current && !containerRef.current.contains(event.target)) {
+      // Allow clicking inside the portal dropdown
+      if (
+        containerRef.current && 
+        !containerRef.current.contains(event.target) &&
+        !event.target.closest('.custom-select-dropdown')
+      ) {
         setIsOpen(false);
       }
     };
+
+    const handleScroll = (event) => {
+      if (event.target.closest && event.target.closest('.custom-select-dropdown')) return;
+      setIsOpen(false);
+    };
+
     document.addEventListener('mousedown', handleOutsideClick);
-    return () => document.removeEventListener('mousedown', handleOutsideClick);
+    window.addEventListener('scroll', handleScroll, true);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      window.removeEventListener('scroll', handleScroll, true);
+    };
   }, []);
+
+  useEffect(() => {
+    if (isOpen && containerRef.current) {
+      const rect = containerRef.current.getBoundingClientRect();
+      setDropdownCoords({
+        top: rect.bottom + 4,
+        left: rect.left,
+        width: rect.width
+      });
+    }
+  }, [isOpen]);
 
   const handleSelect = (option) => {
     if (disabled) return;
@@ -64,12 +93,19 @@ const CustomSelect = ({
           {selectedOption ? selectedOption.label : placeholder}
         </span>
         <div className={`select-chevron-wrapper ${isOpen ? 'open' : ''}`}>
-          <ChevronDown size={16} className="select-chevron" />
+          {isOpen ? (
+            <ChevronUp size={16} className="select-chevron" />
+          ) : (
+            <ChevronDown size={16} className="select-chevron" />
+          )}
         </div>
       </div>
       
-      {isOpen && (
-        <div className="custom-select-dropdown">
+      {isOpen && createPortal(
+        <div 
+          className="custom-select-dropdown"
+          style={{ top: dropdownCoords.top, left: dropdownCoords.left, width: dropdownCoords.width }}
+        >
           {options.map((option, index) => (
             <div 
               key={index} 
@@ -79,7 +115,8 @@ const CustomSelect = ({
               {option.label}
             </div>
           ))}
-        </div>
+        </div>,
+        document.body
       )}
     </div>
   );

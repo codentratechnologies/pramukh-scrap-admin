@@ -291,13 +291,13 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
           <thead>
             <tr>
               <th className="text-center">#</th>
-              <th>Date <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Supervisor <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Work Types <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Total Weight <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Total Amount <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Deductions <ChevronsUpDown size={14} className="sort-icon" /></th>
-              <th>Payable Amount <ChevronsUpDown size={14} className="sort-icon" /></th>
+              <th>Date</th>
+              <th>Supervisor</th>
+              <th>Work Types</th>
+              <th>Total Weight</th>
+              <th>Total Amount</th>
+              <th>Deductions</th>
+              <th>Payable Amount</th>
               <th className="text-center">Actions</th>
             </tr>
           </thead>
