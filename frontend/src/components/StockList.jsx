@@ -30,7 +30,11 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
 
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (filterRef.current && !filterRef.current.contains(event.target)) {
+      if (
+        filterRef.current && 
+        !filterRef.current.contains(event.target) &&
+        !event.target.closest('.custom-select-dropdown')
+      ) {
         setShowFilterDropdown(false);
       }
     };
@@ -75,16 +79,32 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
     }
   };
 
-  const getStockStatus = (quantity) => {
-    const qty = Number(quantity);
+  const getStockStatus = (stock) => {
+    const qty = Number(stock.quantity);
     if (qty === 0) return 'Out of Stock';
-    if (qty < 150) return 'Low Stock';
+
+    let totalAdded = 0;
+    if (stock.history) {
+      const historyItems = Array.isArray(stock.history) 
+        ? stock.history 
+        : Object.values(stock.history);
+        
+      historyItems.forEach(entry => {
+        if (entry.action === 'ADDED') {
+          totalAdded += Number(entry.quantity) || 0;
+        }
+      });
+    }
+
+    if (totalAdded === 0) totalAdded = qty;
+
+    if (qty <= (totalAdded * 0.2)) return 'Low Stock';
     return 'Available';
   };
 
   const filteredStocks = stocks.filter(stock => {
     const term = searchTerm.toLowerCase();
-    const status = getStockStatus(stock.quantity);
+    const status = getStockStatus(stock);
     
     if (statusFilter && status !== statusFilter) return false;
     
@@ -210,7 +230,7 @@ const StockList = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                       <td className="text-center">{(currentPage - 1) * itemsPerPage + index + 1}.</td>
                       <td className="fw-500">{item.materialName}</td>
                       <td className="text-center">{item.quantity} {item.unit}</td>
-                      <td className="text-center">{getStatusBadge(getStockStatus(item.quantity))}</td>
+                      <td className="text-center">{getStatusBadge(getStockStatus(item))}</td>
                       <td className="text-center">
                         <div className="actions-container">
                           <button className="action-btn view-btn" title="View Details" onClick={() => onViewEntry(item)}>

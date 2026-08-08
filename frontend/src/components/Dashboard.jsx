@@ -124,9 +124,38 @@ const DynamicPieChart = ({ data }) => {
 const Dashboard = ({ onLogout }) => {
   const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [desktopSidebarExpanded, setDesktopSidebarExpanded] = useState(false);
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => {
+    const path = window.location.pathname.replace(/^\/+/, '');
+    return path || 'dashboard';
+  });
   const [selectedStock, setSelectedStock] = useState(null);
   const [selectedLabor, setSelectedLabor] = useState(null);
+
+  // Handle browser back/forward buttons
+  useEffect(() => {
+    const handlePopState = () => {
+      const path = window.location.pathname.replace(/^\/+/, '');
+      setActiveTab(path || 'dashboard');
+    };
+    
+    window.addEventListener('popstate', handlePopState);
+    
+    if (window.location.pathname === '/' || window.location.pathname === '') {
+      window.history.replaceState(null, '', '/dashboard');
+    }
+
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+    };
+  }, []);
+
+  // Sync activeTab changes to URL path
+  useEffect(() => {
+    const currentPath = window.location.pathname.replace(/^\/+/, '');
+    if (currentPath !== activeTab) {
+      window.history.pushState(null, '', `/${activeTab}`);
+    }
+  }, [activeTab]);
   
   const [dashboardData, setDashboardData] = useState(null);
   const [loadingDashboard, setLoadingDashboard] = useState(true);
@@ -147,7 +176,7 @@ const Dashboard = ({ onLogout }) => {
     }
   }, []);
   
-  const [dateFilter, setDateFilter] = useState('today');
+  const [dateFilter, setDateFilter] = useState('month');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
@@ -222,10 +251,10 @@ const Dashboard = ({ onLogout }) => {
           <a href="#" className={`nav-item ${activeTab === 'dashboard' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('dashboard'); setMobileSidebarOpen(false); }}>
             <LayoutGrid className="nav-icon" /> <span className="nav-text">Dashboard</span>
           </a>
-          <a href="#" className={`nav-item ${activeTab === 'labor' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('labor'); setMobileSidebarOpen(false); }}>
+          <a href="#" className={`nav-item ${['labor', 'add-labor', 'edit-labor', 'view-labor'].includes(activeTab) ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('labor'); setMobileSidebarOpen(false); }}>
             <Users className="nav-icon" /> <span className="nav-text">Labor Management</span>
           </a>
-          <a href="#" className={`nav-item ${activeTab === 'stock' ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('stock'); setMobileSidebarOpen(false); }}>
+          <a href="#" className={`nav-item ${['stock', 'add-stock', 'edit-stock', 'view-stock'].includes(activeTab) ? 'active' : ''}`} onClick={(e) => { e.preventDefault(); setActiveTab('stock'); setMobileSidebarOpen(false); }}>
             <Box className="nav-icon" /> <span className="nav-text">Stock Management</span>
           </a>
         </nav>
@@ -275,113 +304,12 @@ const Dashboard = ({ onLogout }) => {
 
         {activeTab === 'dashboard' ? (
           <div className="dashboard-body">
-            {/* 
-            <div className="dashboard-filter-bar" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', backgroundColor: '#FFFFFF', padding: '15px 20px', borderRadius: '12px', boxShadow: '0 2px 8px rgba(0,0,0,0.05)' }}>
-              <div style={{ fontWeight: '600', color: '#0F172A', fontSize: '1.1rem' }}>
-                Overview Performance
-              </div>
-              <div className="dashboard-filters" style={{ display: 'flex', gap: '10px', alignItems: 'center', flexWrap: 'wrap' }}>
-                <select 
-                  className="dropdown-select" 
-                  value={dateFilter} 
-                  onChange={(e) => setDateFilter(e.target.value)}
-                  style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
-                >
-                  <option value="all">All Time</option>
-                  <option value="today">Today</option>
-                  <option value="week">This Week</option>
-                  <option value="month">This Month</option>
-                  <option value="custom">Custom Date</option>
-                </select>
-                
-                {dateFilter === 'custom' && (
-                  <div style={{ display: 'flex', gap: '5px', alignItems: 'center' }}>
-                    <input 
-                      type="date" 
-                      value={customStart}
-                      onChange={(e) => setCustomStart(e.target.value)}
-                      style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
-                    />
-                    <span style={{color: '#64748B'}}>to</span>
-                    <input 
-                      type="date" 
-                      value={customEnd}
-                      onChange={(e) => setCustomEnd(e.target.value)}
-                      style={{ padding: '0.5rem', borderRadius: '8px', border: '1px solid #E2E8F0', outline: 'none' }}
-                    />
-                  </div>
-                )}
-              </div>
-            </div>
-            */}
+            {/* Filter UI moved to Overall Overview */}
 
             {loadingDashboard ? (
               <Loader text="Loading dashboard data..." />
             ) : (
               <>
-            {/* Top 4 Stat Cards */}
-          <div className="stats-grid">
-            {/* Total Labor Entries */}
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-green-bg">
-                <UserPlus className="stat-icon green-icon" size={24} />
-              </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Labor Entries</div>
-                <div className="stat-value">{dashboardData?.summary?.totalLaborEntries || 0}</div>
-                <div className={`stat-growth ${dashboardData?.summary?.growth?.entries >= 0 ? 'positive' : 'negative'}`}>
-                  {dashboardData?.summary?.growth?.entries >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  <span>{Math.abs(dashboardData?.summary?.growth?.entries || 0)}% vs yesterday</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Total Employees */}
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-blue-bg">
-                <UsersRound className="stat-icon blue-icon" size={24} />
-              </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Employees</div>
-                <div className="stat-value">{dashboardData?.summary?.totalEmployees || 0}</div>
-                <div className={`stat-growth ${dashboardData?.summary?.growth?.employees >= 0 ? 'positive' : 'negative'}`}>
-                  {dashboardData?.summary?.growth?.employees >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  <span>{Math.abs(dashboardData?.summary?.growth?.employees || 0)}% vs yesterday</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Total Labor Cost */}
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-orange-bg">
-                <IndianRupee className="stat-icon orange-icon" size={24} />
-              </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Labor Cost</div>
-                <div className="stat-value">₹ {(dashboardData?.summary?.totalLaborCost || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
-                <div className={`stat-growth ${dashboardData?.summary?.growth?.cost >= 0 ? 'positive' : 'negative'}`}>
-                  {dashboardData?.summary?.growth?.cost >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  <span>{Math.abs(dashboardData?.summary?.growth?.cost || 0)}% vs yesterday</span>
-                </div>
-              </div>
-            </div>
-            
-            {/* Total Payable Amount */}
-            <div className="stat-card">
-              <div className="stat-icon-wrapper light-purple-bg">
-                <Wallet className="stat-icon purple-icon" size={24} />
-              </div>
-              <div className="stat-details">
-                <div className="stat-title">Total Payable Amount</div>
-                <div className="stat-value">₹ {(dashboardData?.summary?.totalPayableAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
-                <div className={`stat-growth ${dashboardData?.summary?.growth?.payable >= 0 ? 'positive' : 'negative'}`}>
-                  {dashboardData?.summary?.growth?.payable >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
-                  <span>{Math.abs(dashboardData?.summary?.growth?.payable || 0)}% vs yesterday</span>
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Today Overview */}
           <div className="today-overview-container">
             <h3 className="today-overview-title">Today Overview</h3>
@@ -431,6 +359,72 @@ const Dashboard = ({ onLogout }) => {
                 </div>
               </div>
 
+            </div>
+          </div>
+
+          {/* Overall Overview (Top 4 Stat Cards) */}
+          <div style={{ marginTop: '24px' }}>
+            <h3 className="today-overview-title" style={{ marginBottom: '16px' }}>Overall Overview</h3>
+            <div className="stats-grid">
+              {/* Total Labor Entries */}
+              <div className="stat-card">
+                <div className="stat-icon-wrapper light-green-bg">
+                  <UserPlus className="stat-icon green-icon" size={24} />
+                </div>
+                <div className="stat-details">
+                  <div className="stat-title">Total Labor Entries</div>
+                  <div className="stat-value">{dashboardData?.summary?.totalLaborEntries || 0}</div>
+                  <div className={`stat-growth ${dashboardData?.summary?.growth?.entries >= 0 ? 'positive' : 'negative'}`}>
+                    {dashboardData?.summary?.growth?.entries >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    <span>{Math.abs(dashboardData?.summary?.growth?.entries || 0)}% vs yesterday</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Total Employees */}
+              <div className="stat-card">
+                <div className="stat-icon-wrapper light-blue-bg">
+                  <UsersRound className="stat-icon blue-icon" size={24} />
+                </div>
+                <div className="stat-details">
+                  <div className="stat-title">Total Employees</div>
+                  <div className="stat-value">{dashboardData?.summary?.totalEmployees || 0}</div>
+                  <div className={`stat-growth ${dashboardData?.summary?.growth?.employees >= 0 ? 'positive' : 'negative'}`}>
+                    {dashboardData?.summary?.growth?.employees >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    <span>{Math.abs(dashboardData?.summary?.growth?.employees || 0)}% vs yesterday</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Total Labor Cost */}
+              <div className="stat-card">
+                <div className="stat-icon-wrapper light-orange-bg">
+                  <IndianRupee className="stat-icon orange-icon" size={24} />
+                </div>
+                <div className="stat-details">
+                  <div className="stat-title">Total Labor Cost</div>
+                  <div className="stat-value">₹ {(dashboardData?.summary?.totalLaborCost || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                  <div className={`stat-growth ${dashboardData?.summary?.growth?.cost >= 0 ? 'positive' : 'negative'}`}>
+                    {dashboardData?.summary?.growth?.cost >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    <span>{Math.abs(dashboardData?.summary?.growth?.cost || 0)}% vs yesterday</span>
+                  </div>
+                </div>
+              </div>
+              
+              {/* Total Payable Amount */}
+              <div className="stat-card">
+                <div className="stat-icon-wrapper light-purple-bg">
+                  <Wallet className="stat-icon purple-icon" size={24} />
+                </div>
+                <div className="stat-details">
+                  <div className="stat-title">Total Payable Amount</div>
+                  <div className="stat-value">₹ {(dashboardData?.summary?.totalPayableAmount || 0).toLocaleString('en-IN', { maximumFractionDigits: 2 })}</div>
+                  <div className={`stat-growth ${dashboardData?.summary?.growth?.payable >= 0 ? 'positive' : 'negative'}`}>
+                    {dashboardData?.summary?.growth?.payable >= 0 ? <TrendingUp size={14} /> : <TrendingDown size={14} />}
+                    <span>{Math.abs(dashboardData?.summary?.growth?.payable || 0)}% vs yesterday</span>
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
 

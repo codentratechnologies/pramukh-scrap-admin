@@ -110,7 +110,11 @@ const CustomSelect = ({
             <div 
               key={index} 
               className={`custom-select-option ${String(option.value) === String(value) ? 'selected' : ''}`}
-              onClick={() => handleSelect(option)}
+              onMouseDown={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                handleSelect(option);
+              }}
             >
               {option.label}
             </div>

@@ -129,22 +129,22 @@ def get_dashboard_stats(
                     today_overview["laborEntries"] += 1
                     today_overview["laborCost"] += entry_cost
                     today_overview["payableAmount"] += entry_payable
+                    today_overview["totalDeductions"] += float(entry.get("deductions", 0) or 0)
                     for emp in entry.get("employees", []):
                         name = emp.get('name', '')
                         if name:
                             today_overview["uniqueEmployees"].add(name.lower().strip())
-                        today_overview["totalDeductions"] += float(emp.get("deductions", 0) or 0)
                         for wt in emp.get("workTypes", []):
                             today_overview["totalWeight"] += float(wt.get("weight", 0) or 0)
                 elif dt_yesterday_start <= entry_dt <= dt_yesterday_end:
                     yesterday_summary["laborEntries"] += 1
                     yesterday_summary["laborCost"] += entry_cost
                     yesterday_summary["payableAmount"] += entry_payable
+                    yesterday_summary["totalDeductions"] += float(entry.get("deductions", 0) or 0)
                     for emp in entry.get("employees", []):
                         name = emp.get('name', '')
                         if name:
                             yesterday_summary["uniqueEmployees"].add(name.lower().strip())
-                        yesterday_summary["totalDeductions"] += float(emp.get("deductions", 0) or 0)
                         for wt in emp.get("workTypes", []):
                             yesterday_summary["totalWeight"] += float(wt.get("weight", 0) or 0)
 
