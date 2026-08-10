@@ -649,6 +649,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                               <td>
                                 <input 
                                   type="number" 
+                                  onWheel={(e) => e.target.blur()}
                                   className={`form-control wt-input-small ${errors[`wt_${wt.id}_weight`] ? 'error-border' : ''}`}
                                   value={wt.weight} 
                                   onChange={(e) => { handleWorkTypeChange(emp.id, wt.id, 'weight', e.target.value); setErrors({...errors, [`wt_${wt.id}_weight`]: null}); }}
@@ -658,6 +659,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
                               <td>
                                 <input 
                                   type="number" 
+                                  onWheel={(e) => e.target.blur()}
                                   className={`form-control wt-input-small ${errors[`wt_${wt.id}_rate`] ? 'error-border' : ''}`}
                                   value={wt.rate}
                                   onChange={(e) => { handleWorkTypeChange(emp.id, wt.id, 'rate', e.target.value); setErrors({...errors, [`wt_${wt.id}_rate`]: null}); }}
@@ -716,6 +718,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
               <label className="form-label">Deductions (₹)</label>
               <input 
                 type="number" 
+                onWheel={(e) => e.target.blur()}
                 className="form-control" 
                 value={deductions} 
                 onChange={(e) => setDeductions(e.target.value)}

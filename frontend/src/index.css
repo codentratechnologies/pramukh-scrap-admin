@@ -48,6 +48,17 @@ p {
   font-size: clamp(14px, 1vw, 16px);
 }
 
+/* Remove Arrows/Spinners from Number Inputs */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+input[type=number] {
+  -moz-appearance: textfield;
+}
+
 /* React Datepicker Custom Styles Global Fix */
 .react-datepicker-wrapper,
 .react-datepicker__input-container {

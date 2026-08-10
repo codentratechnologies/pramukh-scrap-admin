@@ -275,6 +275,7 @@ const EditStockEntry = ({ stock, onCancel }) => {
                   <input 
                     type="number" 
                     name="quantity" 
+                    onWheel={(e) => e.target.blur()}
                     value={formData.quantity} 
                     onChange={handleChange}
                     className="form-input quantity-input"
