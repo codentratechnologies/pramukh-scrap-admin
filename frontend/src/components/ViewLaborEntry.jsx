@@ -156,10 +156,20 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
                 onClick={() => toggleRow(emp.id)}
                 style={{ cursor: 'pointer' }}
               >
-                <div className="emp-info" style={{ display: 'flex', justifyContent: 'space-between', width: '100%', alignItems: 'center' }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <span className="emp-index">#{index + 1}</span>
-                    <span className="emp-name fw-600">{emp.name}</span>
+                <div className="emp-info">
+                  <span className="emp-index">#{index + 1}</span>
+                  <span className="emp-name fw-600">{emp.name}</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
+                  <div className="emp-totals">
+                    <div className="emp-total-item">
+                      <span className="label">Total Weight:</span>
+                      <span className="value">{emp.totalWeight} Kg</span>
+                    </div>
+                    <div className="emp-total-item">
+                      <span className="label">Total Amount:</span>
+                      <span className="value text-green fw-600">₹ {emp.totalAmount}</span>
+                    </div>
                   </div>
                   <button 
                     className={`expand-icon-btn ${expandedRow === emp.id ? 'expanded' : ''}`}
@@ -167,16 +177,6 @@ const ViewLaborEntry = ({ onBack, laborId }) => {
                   >
                     <ChevronDown size={20} />
                   </button>
-                </div>
-                <div className="emp-totals">
-                  <div className="emp-total-item">
-                    <span className="label">Total Weight:</span>
-                    <span className="value">{emp.totalWeight} Kg</span>
-                  </div>
-                  <div className="emp-total-item">
-                    <span className="label">Total Amount:</span>
-                    <span className="value text-green fw-600">₹ {emp.totalAmount}</span>
-                  </div>
                 </div>
               </div>
               
