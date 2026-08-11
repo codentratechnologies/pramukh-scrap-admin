@@ -2,3 +2,5 @@ fastapi
 uvicorn
 firebase-admin
 PyJWT
+Pyrebase4
+python-dotenv
