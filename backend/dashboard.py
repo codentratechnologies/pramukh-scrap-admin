@@ -34,8 +34,9 @@ def get_dashboard_stats(
             dt_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
             dt_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
         elif filter_type == "week":
-            # Start of week (Monday)
-            dt_start = (now - timedelta(days=now.weekday())).replace(hour=0, minute=0, second=0, microsecond=0)
+            # Start of week (Sunday)
+            days_to_subtract = (now.weekday() + 1) % 7
+            dt_start = (now - timedelta(days=days_to_subtract)).replace(hour=0, minute=0, second=0, microsecond=0)
             dt_end = now.replace(hour=23, minute=59, second=59, microsecond=999999)
         elif filter_type == "month":
             dt_start = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -55,6 +56,8 @@ def get_dashboard_stats(
         total_labor_entries = 0
         total_labor_cost = 0.0
         total_payable_amount = 0.0
+        total_weight = 0.0
+        total_deductions = 0.0
         unique_employees = set()
         
         # Today / Yesterday boundaries
@@ -106,6 +109,7 @@ def get_dashboard_stats(
                 total_labor_entries += 1
                 total_labor_cost += entry_cost
                 total_payable_amount += entry_payable
+                total_deductions += float(entry.get("deductions", 0) or 0)
                 
                 if entry_dt:
                     day_str = entry_dt.strftime("%d %b")
@@ -118,6 +122,7 @@ def get_dashboard_stats(
                     for wt in emp.get('workTypes', []):
                         w_type = wt.get('type')
                         weight = float(wt.get('weight', 0))
+                        total_weight += weight
                         if w_type in work_type_weights:
                             work_type_weights[w_type] += weight
                         else:
@@ -208,10 +213,10 @@ def get_dashboard_stats(
                 }
             },
             "todayOverview": {
-                "laborEntries": today_overview["laborEntries"],
-                "totalWeight": today_overview["totalWeight"],
-                "totalDeductions": today_overview["totalDeductions"],
-                "payableAmount": today_overview["payableAmount"]
+                "laborEntries": total_labor_entries,
+                "totalWeight": total_weight,
+                "totalDeductions": total_deductions,
+                "payableAmount": total_payable_amount
             },
             "workTypeData": work_type_data,
             "lineChartData": line_chart_data

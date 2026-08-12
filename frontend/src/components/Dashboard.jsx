@@ -176,7 +176,7 @@ const Dashboard = ({ onLogout }) => {
     }
   }, []);
   
-  const [dateFilter, setDateFilter] = useState('month');
+  const [dateFilter, setDateFilter] = useState('week');
   const [customStart, setCustomStart] = useState('');
   const [customEnd, setCustomEnd] = useState('');
 
@@ -310,9 +310,16 @@ const Dashboard = ({ onLogout }) => {
               <Loader text="Loading dashboard data..." />
             ) : (
               <>
-          {/* Today Overview */}
+          {/* Filtered Overview */}
           <div className="today-overview-container">
-            <h3 className="today-overview-title">Today Overview</h3>
+            <h3 className="today-overview-title">
+              Overview <span>({
+                  dateFilter === 'all' ? 'All Time' :
+                  dateFilter === 'today' ? 'Today' :
+                  dateFilter === 'week' ? 'This Week' :
+                  dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                })</span>
+            </h3>
             <div className="today-overview-grid">
               
               <div className="today-stat-item">
@@ -322,7 +329,12 @@ const Dashboard = ({ onLogout }) => {
                 <div className="today-stat-info">
                   <div className="today-stat-label">Labor Entries</div>
                   <div className="today-stat-value">{dashboardData?.todayOverview?.laborEntries || 0}</div>
-                  <div className="today-stat-subtitle">Today</div>
+                  <div className="today-stat-subtitle">{
+                    dateFilter === 'all' ? 'All Time' :
+                    dateFilter === 'today' ? 'Today' :
+                    dateFilter === 'week' ? 'This Week' :
+                    dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                  }</div>
                 </div>
               </div>
 
@@ -333,7 +345,12 @@ const Dashboard = ({ onLogout }) => {
                 <div className="today-stat-info">
                   <div className="today-stat-label">Total Weight</div>
                   <div className="today-stat-value">{(dashboardData?.todayOverview?.totalWeight || 0).toLocaleString('en-IN')} Kg</div>
-                  <div className="today-stat-subtitle">Today</div>
+                  <div className="today-stat-subtitle">{
+                    dateFilter === 'all' ? 'All Time' :
+                    dateFilter === 'today' ? 'Today' :
+                    dateFilter === 'week' ? 'This Week' :
+                    dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                  }</div>
                 </div>
               </div>
 
@@ -344,7 +361,12 @@ const Dashboard = ({ onLogout }) => {
                 <div className="today-stat-info">
                   <div className="today-stat-label">Total Deductions</div>
                   <div className="today-stat-value">₹ {(dashboardData?.todayOverview?.totalDeductions || 0).toLocaleString('en-IN')}</div>
-                  <div className="today-stat-subtitle">Today</div>
+                  <div className="today-stat-subtitle">{
+                    dateFilter === 'all' ? 'All Time' :
+                    dateFilter === 'today' ? 'Today' :
+                    dateFilter === 'week' ? 'This Week' :
+                    dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                  }</div>
                 </div>
               </div>
 
@@ -355,7 +377,12 @@ const Dashboard = ({ onLogout }) => {
                 <div className="today-stat-info">
                   <div className="today-stat-label">Payable Amount</div>
                   <div className="today-stat-value">₹ {(dashboardData?.todayOverview?.payableAmount || 0).toLocaleString('en-IN')}</div>
-                  <div className="today-stat-subtitle">Today</div>
+                  <div className="today-stat-subtitle">{
+                    dateFilter === 'all' ? 'All Time' :
+                    dateFilter === 'today' ? 'Today' :
+                    dateFilter === 'week' ? 'This Week' :
+                    dateFilter === 'month' ? 'This Month' : 'Custom Date'
+                  }</div>
                 </div>
               </div>
 

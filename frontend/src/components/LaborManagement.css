@@ -333,6 +333,12 @@
   border-color: #BFDBFE;
 }
 
+.action-btn.download-btn:hover {
+  background-color: #F3E8FF;
+  color: #9333EA;
+  border-color: #D8B4FE;
+}
+
 .action-btn.edit-btn:hover {
   background-color: #DCFCE7;
   color: #16A34A;

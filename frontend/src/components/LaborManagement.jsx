@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import { 
   Search, 
   Plus, 
@@ -125,6 +127,209 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
   const cancelDelete = () => {
     setDeleteModalOpen(false);
     setEntryToDelete(null);
+  };
+
+  const handleDownloadClick = async (row) => {
+    try {
+      const loadingToast = toast.loading('Generating PDF...');
+      
+      // Fetch full details for the row
+      const res = await apiFetch(`/labor/${row.id}`);
+      const json = await res.json();
+      
+      if (!json.success) {
+        toast.error('Failed to fetch details for PDF.');
+        toast.dismiss(loadingToast);
+        return;
+      }
+      
+      const data = json.data;
+      const doc = new jsPDF();
+      
+      // Helper to load image
+      const loadImage = (src) => {
+        return new Promise((resolve, reject) => {
+          const img = new Image();
+          img.onload = () => resolve(img);
+          img.onerror = reject;
+          img.src = src;
+        });
+      };
+      
+      // Header Divider (Replaced solid background so logo blends cleanly)
+      doc.setDrawColor(229, 231, 235);
+      doc.setLineWidth(0.5);
+      doc.line(14, 38, 196, 38);
+      
+      let currentY = 10;
+      
+      // Logo (Right aligned)
+      try {
+        const logoImg = await loadImage('/pramukh scrap logo.png');
+        const logoWidth = 45;
+        const ratio = logoImg.height / logoImg.width;
+        const logoHeight = logoWidth * ratio;
+        doc.addImage(logoImg, 'PNG', 150, currentY + 2, logoWidth, logoHeight);
+      } catch (e) {
+        console.warn("Logo couldn't be loaded", e);
+      }
+      
+      // Header Text (Left aligned)
+      doc.setFontSize(24);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(31, 124, 56); // Theme Green #1F7C38
+      doc.text('LABOR RECEIPT', 14, currentY + 10);
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(107, 114, 128); // Muted
+      doc.text('Pramukh Scrap Management', 14, currentY + 16);
+      
+      currentY = 45;
+      
+      // Entry Details Box
+      doc.setDrawColor(229, 231, 235);
+      doc.setFillColor(255, 255, 255);
+      doc.roundedRect(14, currentY, 182, 25, 3, 3, 'FD');
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(107, 114, 128);
+      
+      // Details row 1
+      doc.text('RECEIPT NO.', 20, currentY + 10);
+      doc.text('DATE', 85, currentY + 10);
+      doc.text('SUPERVISOR', 135, currentY + 10);
+      
+      // Details row 2
+      doc.setFontSize(11);
+      doc.setTextColor(15, 23, 42); // Dark
+      doc.text(`LE-${new Date(data.entryDate).getTime().toString().slice(-6)}`, 20, currentY + 17);
+      doc.text(`${new Date(data.entryDate).toLocaleDateString('en-GB')}`, 85, currentY + 17);
+      doc.text(`${data.supervisorName || 'N/A'}`, 135, currentY + 17);
+      
+      currentY += 35;
+      
+      // Employee details table
+      data.employees?.forEach((emp, index) => {
+        doc.setFontSize(12);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(31, 124, 56); // Green
+        doc.text(`Employee: ${emp.name}`, 14, currentY);
+        currentY += 5;
+        
+        const tableData = emp.workTypes?.map(wt => [
+          wt.type,
+          `${wt.weight} Kg`,
+          `Rs. ${wt.rate}`,
+          `Rs. ${((parseFloat(wt.weight) || 0) * (parseFloat(wt.rate) || 0)).toLocaleString('en-IN', { maximumFractionDigits: 2 })}`
+        ]) || [];
+        
+        autoTable(doc, {
+          startY: currentY,
+          head: [['Work Type', 'Weight', 'Rate', 'Total']],
+          body: tableData,
+          theme: 'grid',
+          headStyles: { 
+            fillColor: [31, 124, 56], 
+            textColor: 255,
+            fontStyle: 'bold'
+          },
+          columnStyles: {
+            1: { halign: 'right' },
+            2: { halign: 'right' },
+            3: { halign: 'right', fontStyle: 'bold' }
+          },
+          alternateRowStyles: {
+            fillColor: [249, 250, 251]
+          },
+          margin: { left: 14, right: 14 }
+        });
+        
+        currentY = doc.lastAutoTable.finalY + 12;
+      });
+      
+      // Summary Box (Check if we need a new page)
+      if (currentY > 210) {
+        doc.addPage();
+        currentY = 20;
+      }
+      
+      doc.setDrawColor(31, 124, 56); // Green border
+      doc.setLineWidth(0.5);
+      doc.setFillColor(245, 249, 246);
+      doc.roundedRect(120, currentY, 76, 45, 3, 3, 'FD'); // Box for summary right aligned
+      
+      let summaryY = currentY + 8;
+      
+      const rightColLabel = 125;
+      const rightColValue = 190;
+      
+      doc.setFontSize(10);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(107, 114, 128);
+      doc.text('Total Weight', rightColLabel, summaryY);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`${data.grandTotalWeight} Kg`, rightColValue, summaryY, { align: 'right' });
+      
+      summaryY += 8;
+      doc.setTextColor(107, 114, 128);
+      doc.text('Total Amount', rightColLabel, summaryY);
+      doc.setTextColor(15, 23, 42);
+      doc.text(`Rs. ${data.grandTotalAmount?.toLocaleString('en-IN')}`, rightColValue, summaryY, { align: 'right' });
+      
+      summaryY += 8;
+      doc.setTextColor(107, 114, 128);
+      doc.text('Deductions', rightColLabel, summaryY);
+      doc.setTextColor(220, 38, 38); // Red
+      doc.text(`- Rs. ${data.deductions?.toLocaleString('en-IN') || 0}`, rightColValue, summaryY, { align: 'right' });
+      
+      // Line before total
+      summaryY += 4;
+      doc.setDrawColor(209, 213, 219);
+      doc.line(125, summaryY, 190, summaryY);
+      summaryY += 8;
+      
+      doc.setFontSize(12);
+      doc.setFont('helvetica', 'bold');
+      doc.setTextColor(31, 124, 56); // Green payable amount
+      doc.text('Payable Amount', rightColLabel, summaryY);
+      doc.text(`Rs. ${data.payableAmount?.toLocaleString('en-IN')}`, rightColValue, summaryY, { align: 'right' });
+      
+      // Remarks on the left side
+      if (data.remarks) {
+        let remarksY = currentY + 6;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'bold');
+        doc.setTextColor(15, 23, 42);
+        doc.text('Remarks / Notes:', 14, remarksY);
+        
+        remarksY += 6;
+        doc.setFontSize(10);
+        doc.setFont('helvetica', 'italic');
+        doc.setTextColor(107, 114, 128);
+        const splitRemarks = doc.splitTextToSize(`${data.remarks}`, 95);
+        doc.text(splitRemarks, 14, remarksY);
+      }
+      
+      // Footer
+      const pageHeight = doc.internal.pageSize.height;
+      doc.setFontSize(9);
+      doc.setFont('helvetica', 'normal');
+      doc.setTextColor(156, 163, 175);
+      doc.text('Generated by Pramukh Scrap Management System', 14, pageHeight - 10);
+      doc.text(new Date().toLocaleString('en-GB'), 196, pageHeight - 10, { align: 'right' });
+      
+      // Save PDF
+      doc.save(`Labor_Entry_${row.id}_${new Date(data.entryDate).toLocaleDateString('en-GB').replace(/\//g, '-')}.pdf`);
+      
+      toast.dismiss(loadingToast);
+      toast.success('PDF downloaded successfully');
+    } catch (err) {
+      console.error("Failed to generate PDF:", err);
+      toast.dismiss();
+      toast.error("Error generating PDF");
+    }
   };
 
   const uniqueSupervisors = [...new Set(data.map(item => item.supervisor).filter(Boolean))];
@@ -328,6 +533,7 @@ const LaborManagement = ({ onAddEntry, onEditEntry, onViewEntry }) => {
                       <td>
                         <div className="actions-container" style={{ justifyContent: 'center' }}>
                           <button className="action-btn view-btn" title="View" onClick={() => onViewEntry(row.id)}><Eye size={16} /></button>
+                          <button className="action-btn download-btn" title="Download" onClick={() => handleDownloadClick(row)}><Download size={16} /></button>
                           <button className="action-btn edit-btn" title="Edit" onClick={() => onEditEntry(row.id)}><Edit size={16} /></button>
                           <button className="action-btn delete-btn" title="Delete" onClick={() => handleDeleteClick(row.id)}><Trash2 size={16} /></button>
                         </div>
