@@ -477,3 +477,4 @@ input[type=number] {
     padding: 15vh var(--space-32) var(--space-32) var(--space-32);
   }
 }
+@keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
