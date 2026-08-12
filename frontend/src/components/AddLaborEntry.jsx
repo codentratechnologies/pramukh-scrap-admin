@@ -34,6 +34,7 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
   const [employees, setEmployees] = useState([]);
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [showResetModal, setShowResetModal] = useState(false);
 
   // Dynamic Supervisors State
   const [supervisorsList, setSupervisorsList] = useState([]);
@@ -175,16 +176,19 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
   };
 
   const handleReset = () => {
-    if (window.confirm("Are you sure you want to clear all fields?")) {
-      setEntryDate(new Date());
-      setSupervisorName('');
-      setDeductions('');
-      setRemarks('');
-      setDeductionReason('');
-      setEmployees([]);
-      setErrors({});
-      setExpandedRow(null);
-    }
+    setShowResetModal(true);
+  };
+
+  const confirmReset = () => {
+    setEntryDate(new Date());
+    setSupervisorName('');
+    setDeductions('');
+    setRemarks('');
+    setDeductionReason('');
+    setEmployees([]);
+    setErrors({});
+    setExpandedRow(null);
+    setShowResetModal(false);
   };
 
   const handleAddEmployee = () => {
@@ -770,6 +774,27 @@ const AddLaborEntry = ({ onCancel, isEditMode, laborId }) => {
           <Save size={18} /> {isSubmitting ? 'Saving...' : (isEditMode ? 'Update Labor Entry' : 'Save Labor Entry')}
         </button>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Confirm Reset</h3>
+              <button className="close-btn" onClick={() => setShowResetModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="modal-body" style={{padding: '24px'}}>
+              <p style={{margin: 0, color: '#475569', fontSize: '14px', lineHeight: '1.5'}}>Are you sure you want to clear all fields? This action cannot be undone.</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn-secondary" onClick={() => setShowResetModal(false)}>Cancel</button>
+              <button type="button" className="btn-primary" style={{backgroundColor: '#ef4444', borderColor: '#ef4444'}} onClick={confirmReset}>Yes, Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Add Supervisor Modal */}
       {showSupervisorModal && (

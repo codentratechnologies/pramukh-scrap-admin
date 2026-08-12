@@ -30,6 +30,23 @@ const AddStockEntry = ({ onCancel }) => {
     stockDate: null
   });
   const [errors, setErrors] = useState({});
+  const [showResetModal, setShowResetModal] = useState(false);
+
+  const handleReset = () => {
+    setShowResetModal(true);
+  };
+
+  const confirmReset = () => {
+    setFormData({
+      materialName: '',
+      description: '',
+      quantity: '',
+      unit: 'kg',
+      stockDate: null
+    });
+    setErrors({});
+    setShowResetModal(false);
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -262,11 +279,35 @@ const AddStockEntry = ({ onCancel }) => {
           <button type="button" className="btn-cancel" onClick={onCancel}>
             <X size={18} /> Cancel
           </button>
+          <button type="button" className="btn-cancel" style={{borderColor: '#ef4444', color: '#ef4444'}} onClick={handleReset}>
+            Reset
+          </button>
           <button type="button" className="btn-save" onClick={handleSave}>
             <Save size={18} /> Save Stock
           </button>
         </div>
       </div>
+
+      {/* Reset Confirmation Modal */}
+      {showResetModal && (
+        <div className="modal-overlay">
+          <div className="modal-content">
+            <div className="modal-header">
+              <h3>Confirm Reset</h3>
+              <button className="close-btn" onClick={() => setShowResetModal(false)}>
+                <X size={20} />
+              </button>
+            </div>
+            <div className="modal-body" style={{padding: '24px'}}>
+              <p style={{margin: 0, color: '#475569', fontSize: '14px', lineHeight: '1.5'}}>Are you sure you want to clear all fields? This action cannot be undone.</p>
+            </div>
+            <div className="modal-footer">
+              <button type="button" className="btn-secondary" onClick={() => setShowResetModal(false)}>Cancel</button>
+              <button type="button" className="btn-primary" style={{backgroundColor: '#ef4444', borderColor: '#ef4444'}} onClick={confirmReset}>Yes, Reset</button>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
