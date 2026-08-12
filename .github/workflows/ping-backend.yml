@@ -1,0 +1,17 @@
+name: Ping Backend Server
+
+on:
+  schedule:
+    # Runs every 14 minutes to prevent the free tier server from sleeping
+    - cron: '*/14 * * * *'
+  workflow_dispatch: # Allows you to run this manually from the Actions tab
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping API
+        run: |
+          # Replace the URL below with your actual backend production URL
+          # For example: https://my-backend-app.onrender.com/docs
+          curl -s -o /dev/null -w "%{http_code}" https://YOUR_BACKEND_URL_HERE
